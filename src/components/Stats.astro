@@ -1,0 +1,20 @@
+---
+// Figma "Stat Item" nodes 14196:27730 / 27737 / 27744 — three 392px columns
+// (24px gutters) sitting directly below the phone mockup at page y1618.
+const stats = [
+  { value: '12,500', title: 'Monthly Active Users' },
+  { value: '78%', title: 'Engagement Rate' },
+  { value: '68%', title: 'Retention Rate' },
+];
+---
+
+<section class="relative z-10 mx-auto grid w-full max-w-[1224px] grid-cols-1 gap-6 px-4 text-center sm:grid-cols-3">
+  {stats.map((stat) => (
+    <div class="flex flex-col gap-4">
+      <p class="font-pixel text-[72px] leading-[0.95] text-[#ff952d] lg:text-[104px]">{stat.value}</p>
+      <p class="font-geist text-[20px] leading-[1.4] tracking-[-0.48px] text-[#9e9e9e] lg:text-[24px]">
+        {stat.title}
+      </p>
+    </div>
+  ))}
+</section>

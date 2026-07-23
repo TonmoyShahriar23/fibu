@@ -1,0 +1,127 @@
+---
+// Figma node 14196:27634 (y5774, 1224x979): gradient pixel heading + subtext,
+// then a 3-column card grid (cards: #070606, border #2c2a2a, 24px radius)
+// masked by a linear alpha fade — fully opaque to 51.7% of the grid height,
+// transparent at the bottom (mask asset 1224x747, gradient y386.5→747).
+const testimonials = [
+  {
+    avatar: '/images/testimonial-1.jpg',
+    name: 'Ethan Carter',
+    role: 'Software Engineer',
+    quote:
+      "Just joined the @fibu beta and wow, this is the seamless UI/UX that task management has been craving! It's like a breath of fresh air for productivity tools.",
+  },
+  {
+    avatar: '/images/testimonial-2.jpg',
+    name: 'Sophia Bennett',
+    role: 'Cloud Engineer',
+    quote:
+      "Just got into the @fibu beta and my first impression is that this is the elegant UI/UX that task management apps have been waiting for. It's impressive!",
+  },
+  {
+    avatar: '/images/testimonial-3.jpg',
+    name: 'Ethan Carter',
+    role: 'Web Developer',
+    quote:
+      "I got access to the @fibu beta and my first thought is that this is the intuitive UI/UX that task management apps have been lacking. It's truly a game changer!",
+  },
+  {
+    avatar: '/images/testimonial-4.jpg',
+    name: 'Mason Thompson',
+    role: 'Application Developer',
+    quote:
+      "After trying out the @fibu beta, I can confidently say this is the user-friendly UI/UX that task management has needed. It's a delightful experience!",
+  },
+  {
+    avatar: '/images/testimonial-5.jpg',
+    name: 'Noah Wilson',
+    role: 'Systems Architect',
+    quote:
+      "After joining the @fibu beta, I'm excited to experience this sleek UI/UX that task management truly needed. It's a welcome update!",
+  },
+  {
+    avatar: '/images/testimonial-6.jpg',
+    name: 'Sophia Bennett',
+    role: 'DevOps Engineer',
+    quote:
+      "I recently joined the @fibu beta and I must say, this is the kind of smooth UI/UX that task management tools have been missing. It's fantastic!",
+  },
+  {
+    avatar: '/images/testimonial-7.jpg',
+    name: 'Oliver Martinez',
+    role: 'Data Scientist',
+    quote:
+      'I’m now part of the @taskmaster beta and I can’t believe how this UI/UX transforms task management. It’s exactly what we’ve been looking for!',
+  },
+  {
+    avatar: '/images/testimonial-8.jpg',
+    name: 'Lucas Johnson',
+    role: 'UI/UX Designer',
+    quote:
+      'Having joined the @taskmaster beta, I’m thrilled to see this is the polished UI/UX that task management has been missing. It’s a refreshing change!',
+  },
+  {
+    avatar: '/images/testimonial-9.jpg',
+    name: 'Aiden Brown',
+    role: 'Technical Lead',
+    quote:
+      'I just signed up for the @taskmaster beta and I’m blown away by the sleek UI/UX. This is the kind of experience that task management apps have needed for a long time!',
+  },
+];
+---
+
+<section class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[1224px] flex-col items-center gap-12 px-4">
+  <div class="flex w-full flex-col items-center gap-4 text-center">
+    <h2
+      class="heading-gradient font-pixel max-w-[600px] text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
+    >
+      2.64M+ people started exactly where you are
+    </h2>
+    <p class="max-w-[536px] text-[16px] leading-[1.6] text-[#7e7e7e]">
+      Some are now developers. Some are building startups. All of them started with day one.
+    </p>
+  </div>
+
+  <div class="fade-grid grid w-full grid-cols-1 items-start gap-6 md:grid-cols-2 xl:grid-cols-3">
+    {testimonials.map((t) => (
+      <article
+        class="flex flex-col gap-5 rounded-[24px] border border-[#2c2a2a] bg-[#070606] p-6"
+      >
+        <div class="flex items-center gap-4">
+          <img
+            src={t.avatar}
+            alt={`Portrait of ${t.name}`}
+            class="size-12 shrink-0 rounded-[8px] object-cover"
+            width="48"
+            height="48"
+            loading="lazy"
+          />
+          <div class="flex flex-col justify-center gap-2">
+            <p class="text-[20px] font-semibold leading-[1.1] tracking-[-0.5px] text-white">
+              {t.name}
+            </p>
+            <p class="text-[14px] leading-[1.5] text-[#9e9e9e]">{t.role}</p>
+          </div>
+        </div>
+        <div class="w-full border-t border-[#2c2a2a]"></div>
+        <p class="font-geist text-[16px] leading-[1.7] tracking-[-0.3px] text-[#bebdbd]">
+          {t.quote}
+        </p>
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .heading-gradient {
+    background-image: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .fade-grid {
+    -webkit-mask-image: linear-gradient(to bottom, #000 51.7%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 51.7%, transparent 100%);
+  }
+</style>

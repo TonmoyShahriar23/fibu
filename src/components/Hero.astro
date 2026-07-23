@@ -1,0 +1,108 @@
+---
+// Hero scene from Figma node 14196:20376 ("Hero Section") plus the page-level
+// backdrop layers (image 1, pixel arc, ph_planet decorations) that sit behind
+// the navbar and phone mockup. Backdrop divs are absolutely positioned against
+// <main>, so this component must be rendered inside a `relative` container.
+---
+
+<!-- backdrop: night-sky photo with fade-to-black, pixel arc -->
+<div class="pointer-events-none absolute inset-x-0 top-0 z-0" aria-hidden="true">
+  <div class="absolute left-1/2 top-0 ml-[50px] h-[1463px] w-[1882px] -translate-x-1/2">
+    <img src="/images/hero-bg.png" alt="" class="size-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-b from-[rgba(0,0,0,0)] from-[57.28%] to-black"></div>
+  </div>
+  <div class="absolute left-1/2 top-[-733px] h-[1004px] w-[1157px] -translate-x-1/2">
+    <div class="absolute" style="inset: -26.29% -22.82%;">
+      <img src="/images/hero-pixel-arc.svg" alt="" class="block size-full" />
+    </div>
+  </div>
+</div>
+
+<!-- floating pixel planets (above the phone mockup, like in Figma) -->
+<div class="pointer-events-none absolute inset-x-0 top-0 z-20 hidden md:block" aria-hidden="true">
+  <img src="/images/planet-4.png" alt="" class="planet absolute top-[185px] h-16 w-[63px]" style="left: calc(50% - 491px);" />
+  <img src="/images/planet-3.png" alt="" class="planet absolute top-[241px] h-[60px] w-[57px]" style="left: calc(50% + 487px); animation-delay: -2s;" />
+  <img src="/images/planet-1.png" alt="" class="planet absolute top-[646px] size-20" style="left: calc(50% - 588px); animation-delay: -4s;" />
+  <img src="/images/planet-2.png" alt="" class="planet absolute top-[630px] size-[89px]" style="left: calc(50% + 532px); animation-delay: -1s;" />
+</div>
+
+<!-- hero content -->
+<section class="relative z-10 mx-auto mt-24 flex w-full max-w-[856px] flex-col items-center gap-12 px-4 lg:mt-[144px]">
+  <div class="flex w-full flex-col items-center gap-8">
+    <div
+      class="flex items-center justify-center gap-4 rounded-[32px] border border-[rgba(88,13,0,0.5)] bg-[rgba(7,0,0,0.5)] px-6 py-2"
+    >
+      <img src="/images/hero-badge-dot.svg" alt="" class="size-2 shrink-0" />
+      <p class="font-pixel text-center text-[16px] uppercase leading-[1.7] tracking-[3px] text-[#dedddd] sm:text-[20px]">
+        Programming Hero is now <span class="text-[#ff952d]">Fibu</span>
+      </p>
+      <img src="/images/hero-badge-dot.svg" alt="" class="size-2 shrink-0" />
+    </div>
+
+    <div class="flex w-full flex-col gap-4 text-center">
+      <h1 class="font-pixel text-[40px] uppercase leading-[0.9] text-white sm:text-[52px] md:text-[68px] lg:text-[76px]">
+        You've tried to learn to code before. This time it sticks.
+      </h1>
+      <p class="text-[18px] leading-[1.7] text-[#9e9e9e]">
+        Fibu turns coding into a daily habit you actually want to keep — 15 minutes at a time, guided
+        by fibu and backed up by Grandma, the character our own users thank in their reviews
+      </p>
+    </div>
+  </div>
+
+  <div class="flex flex-wrap items-center justify-center gap-4">
+    <a
+      href="#google-play"
+      class="relative block h-12 w-[162px] overflow-clip rounded-[5px] border-[1.2px] border-[#a6a6a6] bg-white transition-transform hover:scale-[1.03]"
+      aria-label="Get it on Google Play"
+    >
+      <span class="absolute" style="left: 10.77px; top: 7.8px; width: 27.708px; height: 32.4px;">
+        <img src="/images/badge-google-play-logo.svg" alt="" class="block size-full" />
+      </span>
+      <span class="absolute" style="left: 48.42px; top: 7.45px; width: 46.617px; height: 7.9px;">
+        <img src="/images/badge-get-it-on.svg" alt="" class="block size-full" />
+      </span>
+      <span class="absolute" style="left: 48.05px; top: 20.28px; width: 101.731px; height: 21.45px;">
+        <img src="/images/badge-google-play-text.svg" alt="" class="block size-full" />
+      </span>
+    </a>
+
+    <a
+      href="#app-store"
+      class="relative block h-12 w-36 rounded-[7px] border-[1.2px] border-[#a6a6a6] bg-white transition-transform hover:scale-[1.03]"
+      aria-label="Download on the App Store"
+    >
+      <span class="absolute" style="left: 10.77px; top: 9.78px; width: 21.26px; height: 27.44px;">
+        <img src="/images/badge-apple-logo.svg" alt="" class="block size-full" />
+      </span>
+      <span class="absolute" style="left: 41.58px; top: 9.4px; width: 82.982px; height: 8.04px;">
+        <img src="/images/badge-download-on-the.svg" alt="" class="block size-full" />
+      </span>
+      <span class="absolute" style="left: 40.14px; top: 21.2px; width: 90.092px; height: 19.81px;">
+        <img src="/images/badge-app-store-text.svg" alt="" class="block size-full" />
+      </span>
+    </a>
+  </div>
+</section>
+
+<style>
+  .planet {
+    animation: float 7s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-12px);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .planet {
+      animation: none;
+    }
+  }
+</style>

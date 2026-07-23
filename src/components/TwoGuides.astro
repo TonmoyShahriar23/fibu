@@ -1,0 +1,77 @@
+---
+// Figma nodes: 14196:27218 (heading, y3863), 14196:14257 (Illustration 1 at
+// x380/y4138, 665x600), 14196:27722 (Fibu card, x108/y4161, 312x239),
+// 14196:27725 (Grandma card, x1020/y3971, 312x289). Section spans y3863-4738
+// (875px tall), 208px below the solution cards. Desktop uses the exact Figma
+// absolute offsets inside the 1224px content box; below xl it stacks.
+---
+
+<section class="relative z-10 mx-auto mt-[120px] w-full max-w-[1224px] px-4 xl:mt-[208px]">
+  <div class="relative flex flex-col items-center gap-10 xl:block xl:h-[875px]">
+    <h2
+      class="heading-gradient font-pixel mx-auto max-w-[458px] text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
+    >
+      You get two guides. Not just an app.
+    </h2>
+
+    <img
+      src="/images/guides-illustration.png"
+      alt="Fibu the fox waving a flag beside Grandma holding a balloon"
+      class="w-full max-w-[500px] xl:absolute xl:left-[272px] xl:top-[275px] xl:w-[665px] xl:max-w-none"
+      loading="lazy"
+    />
+
+    <div class="guide-card guide-card-fibu xl:absolute xl:left-0 xl:top-[298px]">
+      <p class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white">Fibu</p>
+      <p class="font-fira text-[18px] leading-[1.4] text-white">
+        Fibu is the friend who dares you to hit 'start.' Every streak, every level-up, every badge
+        that's fibu cheering the loudest.
+      </p>
+    </div>
+
+    <div class="guide-card guide-card-grandma xl:absolute xl:right-0 xl:top-[108px]">
+      <p class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white">Grandma</p>
+      <p class="font-fira text-[18px] leading-[1.4] text-white">
+        Grandma is the one who reminds you there's no such thing as behind only next. Broke your
+        streak? Missed a week? Grandma's not disappointed. She's just glad you're back.
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .heading-gradient {
+    background-image: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .guide-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 312px;
+    overflow: clip;
+    border-radius: 24px;
+    border: 1px solid rgba(204, 97, 0, 0.2);
+    padding: 24px;
+  }
+
+  .guide-card-fibu {
+    background-image: linear-gradient(
+      -27.216deg,
+      rgba(0, 0, 0, 0.2) 24.298%,
+      rgba(255, 149, 45, 0.2) 97.924%
+    );
+  }
+
+  .guide-card-grandma {
+    background-image: linear-gradient(
+      -31.877deg,
+      rgba(0, 0, 0, 0.2) 24.298%,
+      rgba(255, 149, 45, 0.2) 97.924%
+    );
+  }
+</style>

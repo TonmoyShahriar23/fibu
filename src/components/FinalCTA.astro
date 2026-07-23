@@ -1,0 +1,102 @@
+---
+// Figma node 14219:743 ("CTA", 1224x566, inside "CTA & Footer" at page y8494):
+// orange radial-gradient card (#ff952d center → #ffb326 corners, sampled from
+// the Figma render), faint binary-digit texture across the top (exported as one
+// transparent PNG — the source is ~2000 tiny vector glyphs), award badge with
+// mirrored laurels + 5 stars, Jersey 10 heading in #030003, Geist subtext in
+// #2c2a2a, and the same store badges as the hero (assets reused).
+---
+
+<section class="relative z-10 mx-auto mt-[120px] w-full max-w-[1224px] px-4">
+  <div class="cta-card relative overflow-clip rounded-[32px] px-4 pb-[89px] pt-[80px] sm:px-8">
+    <img
+      src="/images/cta-binary-texture.png"
+      alt=""
+      class="pointer-events-none absolute inset-0 size-full object-cover object-top"
+      aria-hidden="true"
+      loading="lazy"
+    />
+
+    <div class="relative mx-auto flex w-full max-w-[636px] flex-col items-center gap-10">
+      <!-- award badge -->
+      <div class="relative h-[79px] w-[184px]">
+        <span class="absolute" style="inset: 0 1.73% 0.23% 78.26%;">
+          <img src="/images/cta-laurel.svg" alt="" class="block size-full" loading="lazy" />
+        </span>
+        <span class="absolute -scale-x-100" style="inset: 0 78.36% 0.23% 1.63%;">
+          <img src="/images/cta-laurel.svg" alt="" class="block size-full" loading="lazy" />
+        </span>
+        <div class="absolute left-1/2 top-[6.33%] flex -translate-x-1/2">
+          {[1, 2, 3, 4, 5].map(() => (
+            <span class="relative block size-4 overflow-clip">
+              <span class="absolute" style="inset: 7.15% 8.96% 14.22% 8.96%;">
+                <img src="/images/cta-star.svg" alt="" class="block size-full" loading="lazy" />
+              </span>
+            </span>
+          ))}
+        </div>
+        <div
+          class="absolute left-1/2 top-8 flex -translate-x-1/2 flex-col items-center text-center text-[#242426]"
+        >
+          <p class="font-geist whitespace-nowrap text-[16px] font-medium leading-[1.65] tracking-[-0.32px]">
+            Best 15 Apps
+          </p>
+          <p class="font-geist text-[12px] leading-[1.7]">App Store</p>
+        </div>
+        <span class="sr-only">Rated five stars — Best 15 Apps on the App Store</span>
+      </div>
+
+      <!-- heading + subtext -->
+      <div class="flex w-full flex-col items-center gap-4 text-center">
+        <h2 class="font-pixel w-full text-[40px] uppercase leading-[0.9] text-[#030003] sm:text-[52px] xl:text-[64px]">
+          Your streak starts the moment you tap download
+        </h2>
+        <p class="font-geist max-w-[508px] text-[16px] leading-[1.8] tracking-[-0.4px] text-[#2c2a2a]">
+          the award-winning calendar app with powerful features including intuitive natural language
+          text parsing.
+        </p>
+      </div>
+
+      <!-- store badges (same assets as the hero) -->
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a
+          href="#google-play"
+          class="relative block h-12 w-[162px] overflow-clip rounded-[5px] border-[1.2px] border-[#a6a6a6] bg-white transition-transform hover:scale-[1.03]"
+          aria-label="Get it on Google Play"
+        >
+          <span class="absolute" style="left: 10.77px; top: 7.8px; width: 27.708px; height: 32.4px;">
+            <img src="/images/badge-google-play-logo.svg" alt="" class="block size-full" />
+          </span>
+          <span class="absolute" style="left: 48.42px; top: 7.45px; width: 46.617px; height: 7.9px;">
+            <img src="/images/badge-get-it-on.svg" alt="" class="block size-full" />
+          </span>
+          <span class="absolute" style="left: 48.05px; top: 20.28px; width: 101.731px; height: 21.45px;">
+            <img src="/images/badge-google-play-text.svg" alt="" class="block size-full" />
+          </span>
+        </a>
+
+        <a
+          href="#app-store"
+          class="relative block h-12 w-36 rounded-[7px] border-[1.2px] border-[#a6a6a6] bg-white transition-transform hover:scale-[1.03]"
+          aria-label="Download on the App Store"
+        >
+          <span class="absolute" style="left: 10.77px; top: 9.78px; width: 21.26px; height: 27.44px;">
+            <img src="/images/badge-apple-logo.svg" alt="" class="block size-full" />
+          </span>
+          <span class="absolute" style="left: 41.58px; top: 9.4px; width: 82.982px; height: 8.04px;">
+            <img src="/images/badge-download-on-the.svg" alt="" class="block size-full" />
+          </span>
+          <span class="absolute" style="left: 40.14px; top: 21.2px; width: 90.092px; height: 19.81px;">
+            <img src="/images/badge-app-store-text.svg" alt="" class="block size-full" />
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-card {
+    background: radial-gradient(farthest-corner at 50% 50%, #ff952d 0%, #ffb326 100%);
+  }
+</style>

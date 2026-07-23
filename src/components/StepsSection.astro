@@ -1,0 +1,100 @@
+---
+// Figma node 14196:27317 ("1", y4858, 1440x796): #171616 panel, 32px radius,
+// 108/80 padding. Left: "Features" phone panel (14196:27319, 600x636, exported
+// as one image). Right: "Mission detail" column (576px, header + three steps
+// with glowing icon tiles and gradient connector lines at left 28px).
+const steps = [
+  {
+    icon: '/images/step-icon-path.svg',
+    inset: '1.56% 3.19%',
+    title: 'Pick your path',
+    body: 'Python, JavaScript, Web Dev, and more. No CS degree, no experience required.',
+  },
+  {
+    icon: '/images/step-icon-mission.svg',
+    inset: '14.6% 0.01% 14.6% 0',
+    title: "Do today's 10-minute mission",
+    body: 'Earn XP, keep your streak alive, level up as you go.',
+  },
+  {
+    icon: '/images/step-icon-ship.svg',
+    inset: '5.21% 13.53% 5.21% 13.55%',
+    title: 'Ship something real',
+    body: 'Every path ends in an actual project you can show off — not just a certificate.',
+  },
+];
+---
+
+<section
+  class="relative z-10 mx-auto mt-[120px] w-full max-w-[1440px] rounded-[32px] bg-[#171616] px-4 py-12 sm:px-8 lg:px-[108px] lg:py-[80px]"
+>
+  <div class="flex flex-col items-center gap-12 lg:flex-row lg:gap-[48px]">
+    <img
+      src="/images/features-phone.png"
+      alt="Fibu app screen listing NodeJs course modules with progress circles"
+      class="w-full max-w-[600px] shrink-0"
+      loading="lazy"
+    />
+
+    <div class="flex w-full max-w-[576px] flex-col gap-[60px] xl:gap-[120px]">
+      <div class="flex flex-col gap-4">
+        <h2
+          class="heading-gradient font-pixel text-[36px] uppercase leading-[0.9] sm:text-[48px] xl:text-[64px]"
+        >
+          From zero to your first real project 3 steps
+        </h2>
+        <p class="text-[18px] leading-[1.6] text-[#7e7e7e]">
+          Expand your team beyond borders with employer's global human platform. Manage global
+          payroll, compliance, and benefits.
+        </p>
+      </div>
+
+      <div class="relative flex flex-col gap-12">
+        <img
+          src="/images/step-connector.svg"
+          alt=""
+          class="absolute left-[28px] top-[70px] h-16 w-px"
+          aria-hidden="true"
+        />
+        <img
+          src="/images/step-connector.svg"
+          alt=""
+          class="absolute left-[28px] top-[190px] h-16 w-px"
+          aria-hidden="true"
+        />
+
+        {steps.map((step) => (
+          <div class="flex items-center gap-6">
+            <div class="step-icon-tile relative shrink-0 rounded-[16px] border border-[#2e1200] p-3">
+              <span class="relative block size-8">
+                <span class="absolute" style={`inset: ${step.inset};`}>
+                  <img src={step.icon} alt="" class="block size-full" loading="lazy" />
+                </span>
+              </span>
+            </div>
+            <div class="flex flex-col gap-2">
+              <h3 class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white">
+                {step.title}
+              </h3>
+              <p class="text-[16px] leading-[1.6] text-[#7e7e7e]">{step.body}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .heading-gradient {
+    background-image: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .step-icon-tile {
+    background-color: rgba(99, 54, 0, 0.3);
+    box-shadow: inset 0 0 12px 4px rgba(255, 149, 45, 0.5);
+  }
+</style>

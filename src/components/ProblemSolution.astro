@@ -1,0 +1,252 @@
+---
+// Figma nodes: 14196:26572 (problem heading + cards), 14196:26564/26565 et al.
+// (connector curves, stroke #2C2A2A), 14196:27174 (app icon), 14196:27217
+// (solution heading), 14196:26797 (solution cards). Page rhythm: stats →120px→
+// problem section →280px connector zone→ 120px icon →176px→ heading →40px→ cards.
+const problems = [
+  {
+    title: 'It read like a textbook',
+    body: "40 videos in, and you still can't write a for-loop from memory.",
+  },
+  {
+    title: "You couldn't see yourself improving",
+    body: 'No visible progress kills motivation by day 3.',
+  },
+  {
+    title: 'You were learning completely alone',
+    body: 'No one to high-five you when you finally fixed that bug.',
+  },
+];
+---
+
+<section class="relative z-10 mx-auto w-full max-w-[1224px] px-4">
+  <!-- ======================= problem ======================= -->
+  <div class="mt-[120px] flex flex-col items-center gap-[52px]">
+    <h2
+      class="heading-gradient font-pixel max-w-[624px] text-center text-[32px] uppercase leading-[0.9] sm:text-[44px] lg:text-[64px]"
+    >
+      Here's why your last coding app didn't work out
+    </h2>
+
+    <div class="grid w-full grid-cols-1 gap-6 md:grid-cols-3">
+      <!-- card 1: textbook fox -->
+      <article class="card-shell">
+        <div class="card-copy">
+          <h3 class="font-pixel text-[40px] leading-[0.95] text-white">{problems[0].title}</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd]">{problems[0].body}</p>
+        </div>
+        <div class="absolute left-[calc(50%-14px)] top-[146px] h-[392px] w-[362px] -translate-x-1/2">
+          <span class="absolute" style="inset: 4.08% 8.29% 4.08% -0.28%;">
+            <img src="/images/card-fox-textbook.svg" alt="" class="block size-full" loading="lazy" />
+          </span>
+        </div>
+      </article>
+
+      <!-- card 2: frustrated fox + crossed-out doc -->
+      <article class="card-shell">
+        <div class="card-copy">
+          <h3 class="font-pixel text-[40px] leading-none text-white">{problems[1].title}</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd]">{problems[1].body}</p>
+        </div>
+        <img
+          src="/images/card-fox-frustrated.svg"
+          alt=""
+          class="absolute left-[43px] top-[190px] h-[309px] w-[230px]"
+          loading="lazy"
+        />
+        <img
+          src="/images/card-doc-stamp.png"
+          alt=""
+          class="absolute left-[237px] top-[310px] size-[101px]"
+          loading="lazy"
+        />
+      </article>
+
+      <!-- card 3: fox reading alone -->
+      <article class="card-shell">
+        <div class="card-copy">
+          <h3 class="font-pixel text-[40px] leading-none text-white">{problems[2].title}</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd]">{problems[2].body}</p>
+        </div>
+        <img
+          src="/images/card-fox-alone.svg"
+          alt=""
+          class="absolute left-[36px] top-[196px] h-[306px] w-[320px]"
+          loading="lazy"
+        />
+      </article>
+    </div>
+  </div>
+
+  <!-- ============ connectors: cards converge to app icon ============ -->
+  <div class="relative hidden h-[280px] md:block" aria-hidden="true">
+    <div class="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[#2c2a2a]"></div>
+    <img src="/images/connector-down.svg" alt="" class="absolute left-1/2 top-0 h-full w-[428px]" />
+    <img
+      src="/images/connector-down.svg"
+      alt=""
+      class="absolute top-0 h-full w-[428px] -scale-x-100"
+      style="left: calc(50% - 428px);"
+    />
+  </div>
+
+  <!-- fibu app icon -->
+  <div class="mt-10 flex justify-center md:mt-0">
+    <img src="/images/app-icon.png" alt="Fibu app icon" class="size-[120px] rounded-[24px]" loading="lazy" />
+  </div>
+
+  <!-- ======================= solution ======================= -->
+  <h2
+    class="heading-gradient font-pixel mx-auto mt-[100px] max-w-[552px] text-center text-[32px] uppercase leading-none sm:text-[44px] md:mt-[176px] lg:text-[64px]"
+  >
+    The Solution (Meet fibu)
+  </h2>
+
+  <div class="relative mt-10">
+    <!-- connectors fanning out behind the cards -->
+    <div class="pointer-events-none absolute inset-x-0 top-0 hidden h-[280px] md:block" aria-hidden="true">
+      <div class="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[#2c2a2a]"></div>
+      <img src="/images/connector-up.svg" alt="" class="absolute left-1/2 top-0 h-full w-[428px]" />
+      <img
+        src="/images/connector-up.svg"
+        alt=""
+        class="absolute top-0 h-full w-[428px] -scale-x-100"
+        style="left: calc(50% - 428px);"
+      />
+    </div>
+
+    <div class="relative grid w-full grid-cols-1 gap-6 md:grid-cols-3">
+      <!-- card A: code editor -->
+      <article class="card-shell">
+        <div class="card-copy">
+          <h3 class="font-pixel text-[40px] leading-[0.95] text-white">Build real things, in bites</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd]">
+            10–15 minute daily missions. No lectures, no walls of text.
+          </p>
+        </div>
+
+        <div
+          class="absolute left-1/2 top-[189px] flex w-[342px] max-w-[calc(100%-24px)] -translate-x-1/2 flex-col gap-2 rounded-[12px] border border-[rgba(128,128,128,0.2)] bg-[rgba(123,123,123,0.1)] p-2"
+        >
+          <div class="flex items-center gap-4 pl-2">
+            <img src="/images/editor-traffic-dots.svg" alt="" class="h-2 w-10" loading="lazy" />
+            <p class="font-dm-mono text-[14px] leading-[22px] text-[#606060]">console.js</p>
+          </div>
+          <div class="relative h-[173px] w-[326px] max-w-full">
+            <img src="/images/editor-panel-bg.svg" alt="" class="absolute inset-0 size-full" loading="lazy" />
+            <div
+              class="absolute left-[139px] top-0 flex h-8 items-center rounded-[6px] bg-[#171717] px-4 py-2"
+            >
+              <p class="font-dm-mono whitespace-nowrap text-[14px] leading-[18px] text-[#9e9e9e]">Browser</p>
+            </div>
+            <div class="absolute left-4 top-[6px] flex items-center justify-center gap-2">
+              <img src="/images/icon-html5.svg" alt="" class="size-4" loading="lazy" />
+              <p class="font-dm-mono whitespace-nowrap text-[14px] leading-[22px] text-[#9e9e9e]">Index.html</p>
+            </div>
+            <div class="absolute left-1/2 top-[49px] flex w-[302px] -translate-x-1/2 flex-col gap-2">
+              <div class="font-dm-mono flex items-start gap-4 whitespace-nowrap py-1 pl-3 text-[16px] leading-[22px]">
+                <p class="text-[#606060]">1</p>
+                <p class="text-[#dedddd]">{'function multiply(a, b) {'}</p>
+              </div>
+              <div
+                class="flex items-start justify-between rounded-[8px] border-l border-[#e90000] bg-[#171616] py-1 pl-3 pr-1"
+              >
+                <div class="flex items-center gap-4">
+                  <p class="font-dm-mono text-[16px] leading-[22px] text-[#f4f4f4]">2</p>
+                  <span class="h-4 w-px bg-[#f4f4f4]"></span>
+                </div>
+                <img src="/images/icon-eraser.svg" alt="" class="size-6" loading="lazy" />
+              </div>
+              <div class="font-dm-mono flex items-start gap-4 whitespace-nowrap py-1 pl-3 text-[16px] leading-[22px]">
+                <p class="text-[#606060]">3</p>
+                <p class="text-[#9e9e9e]">{'}'}</p>
+              </div>
+            </div>
+            <img src="/images/icon-copy.svg" alt="" class="absolute right-0 top-1 size-6" loading="lazy" />
+          </div>
+        </div>
+      </article>
+
+      <!-- card B: streak calendars + flame -->
+      <article class="card-shell">
+        <div class="card-copy">
+          <h3 class="font-pixel text-[40px] leading-[0.95] text-white">Progress you can actually see</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd]">
+            XP, streaks, badges, levels — every session ends with proof you improved
+          </p>
+        </div>
+        <img
+          src="/images/streak-glow.svg"
+          alt=""
+          class="absolute left-[calc(50%-7px)] top-[51.52%] w-[211px] -translate-x-1/2 mix-blend-lighten"
+          style="height: 59.5%;"
+          loading="lazy"
+        />
+        <img
+          src="/images/streak-calendar-stack.png"
+          alt=""
+          class="absolute left-1/2 top-[143px] w-[384px] max-w-none -translate-x-1/2"
+          loading="lazy"
+        />
+        <div
+          class="absolute left-[calc(50%-7px)] top-[335px] h-[166px] w-32 -translate-x-1/2 overflow-clip drop-shadow-[0px_4px_2px_rgba(0,0,0,0.25)]"
+        >
+          <span class="absolute" style="inset: 10.84% 12.5% 12.05% 12.5%;">
+            <span class="absolute" style="inset: -15.63% -20.83%;">
+              <img src="/images/streak-flame-big.svg" alt="" class="block size-full" loading="lazy" />
+            </span>
+          </span>
+        </div>
+      </article>
+
+      <!-- card C: community orbit -->
+      <article class="card-shell">
+        <div class="card-copy">
+          <h3 class="font-pixel text-[40px] leading-[0.95] text-white">Never learning alone</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd]">
+            A community of 2.64M+ learners, plus fibu and Grandma in your corner.
+          </p>
+        </div>
+        <img
+          src="/images/community-orbit.png"
+          alt=""
+          class="absolute left-0 top-[31px] w-full"
+          loading="lazy"
+        />
+      </article>
+    </div>
+  </div>
+</section>
+
+<style>
+  .heading-gradient {
+    background-image: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .card-shell {
+    position: relative;
+    height: 460px;
+    width: 100%;
+    max-width: 392px;
+    margin-inline: auto;
+    overflow: clip;
+    border-radius: 24px;
+    background-image:
+      linear-gradient(-38.232deg, rgba(0, 0, 0, 0.2) 24.298%, rgba(102, 102, 102, 0.2) 97.924%),
+      linear-gradient(90deg, #171616 0%, #171616 100%);
+  }
+
+  .card-copy {
+    position: absolute;
+    left: 24px;
+    top: 24px;
+    width: calc(100% - 48px);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    z-index: 1;
+  }
+</style>

@@ -1,0 +1,23 @@
+---
+// Figma node 14196:20373 ("Mask group"): the hand-held iPhone photo cropped to a
+// 1055.34x964 frame whose alpha mask fades the image out toward the bottom
+// (linear gradient, opaque until ~81.5%, transparent by ~97%).
+---
+
+<section class="relative z-10 mx-auto mt-[5px] w-full max-w-[1055px]">
+  <div class="phone-mask relative w-full overflow-clip" style="aspect-ratio: 1055.34 / 964;">
+    <img
+      src="/images/hero-phone-mockup.png"
+      alt="A hand holding an iPhone showing the Fibu lesson screen with planet-themed coding lessons"
+      class="absolute max-w-none"
+      style="left: -8.82%; top: 4.84%; width: 121.58%; height: 90.21%;"
+    />
+  </div>
+</section>
+
+<style>
+  .phone-mask {
+    -webkit-mask-image: linear-gradient(to bottom, #000 81.5%, transparent 97%);
+    mask-image: linear-gradient(to bottom, #000 81.5%, transparent 97%);
+  }
+</style>

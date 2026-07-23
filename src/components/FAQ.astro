@@ -1,0 +1,126 @@
+---
+// Figma node 14196:27101 (y7678, 600x696): two-line gradient pixel heading +
+// accordion. Questions: Geist Medium 20px/-0.2px; answers: 16px/1.6 #bebdbd;
+// dividers: 1px #bebdbd at 20% opacity; chevron: Iconly "Arrow Down Circle"
+// (rotated 180° when open, matching the design's up-circle on the open item).
+// Only the FIRST answer exists in Figma (its own template copy); the rest are
+// placeholders written for fibu — flagged with `placeholder: true`.
+const faqs = [
+  {
+    question: 'I barely have any free time',
+    answer:
+      'To create a new task, simply click the + Add Task button. Enter the necessary information such as the task title, set a due date, assign a priority level, and add relevant tags before saving your changes.',
+    placeholder: false,
+  },
+  {
+    question: "I'm not good at math or tech stuff",
+    answer:
+      "You don't need to be. Fibu starts from absolute zero and explains everything in plain language — no formulas, no jargon. If you can follow a recipe, you can follow a mission.",
+    placeholder: true,
+  },
+  {
+    question: "I've quit coding apps before.",
+    answer:
+      "So did most of our learners. That's exactly why fibu is built around 10–15 minute missions, streaks, and Grandma's no-guilt encouragement — designed to make showing up easy, even after a break.",
+    placeholder: true,
+  },
+  {
+    question: 'Is it actually free?',
+    answer:
+      'Yes — you can learn every day for free. Premium unlocks extra practice, projects, and offline access, but the core daily missions cost nothing.',
+    placeholder: true,
+  },
+  {
+    question: 'Will this actually help me get a job?',
+    answer:
+      "Every path ends with real projects you can put in a portfolio. Combined with daily practice, that's what employers actually look for — proof you can build things.",
+    placeholder: true,
+  },
+];
+---
+
+<section class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[600px] flex-col gap-12 px-4">
+  <h2
+    class="heading-gradient font-pixel w-full text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
+  >
+    Have questions?<br />we have answers
+  </h2>
+
+  <div class="flex w-full flex-col gap-4" id="faq-list">
+    {faqs.map((faq, i) => (
+      <>
+        <div class="faq-item rounded-[16px] p-4" data-open={i === 0 ? 'true' : 'false'}>
+          <button
+            type="button"
+            class="faq-toggle flex w-full items-center justify-between gap-6 text-left"
+            aria-expanded={i === 0 ? 'true' : 'false'}
+            aria-controls={`faq-answer-${i}`}
+          >
+            <span class="font-geist text-[20px] font-medium leading-[1.5] tracking-[-0.2px] text-white">
+              {faq.question}
+            </span>
+            <span class="faq-icon relative size-6 shrink-0">
+              <span class="absolute" style="inset: 8.33%;">
+                <img src="/images/faq-arrow-down.svg" alt="" class="block size-full" />
+              </span>
+            </span>
+          </button>
+          <div class="faq-answer" id={`faq-answer-${i}`}>
+            <div class="overflow-hidden">
+              <p class="pt-4 text-[16px] leading-[1.6] tracking-[-0.16px] text-[#bebdbd]">
+                {faq.answer}
+              </p>
+            </div>
+          </div>
+        </div>
+        {i < faqs.length - 1 && <img src="/images/faq-divider.svg" alt="" class="h-px w-full" aria-hidden="true" />}
+      </>
+    ))}
+  </div>
+</section>
+
+<style>
+  .heading-gradient {
+    background-image: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .faq-answer {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.3s ease;
+  }
+
+  .faq-item[data-open='true'] .faq-answer {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-icon {
+    transition: transform 0.3s ease;
+  }
+
+  .faq-item[data-open='true'] .faq-icon {
+    transform: rotate(180deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq-answer,
+    .faq-icon {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('#faq-list .faq-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+      const item = button.closest<HTMLElement>('.faq-item');
+      if (!item) return;
+      const open = item.dataset.open === 'true';
+      item.dataset.open = open ? 'false' : 'true';
+      button.setAttribute('aria-expanded', String(!open));
+    });
+  });
+</script>
