@@ -117,7 +117,7 @@ const problems = [
 
     <div class="relative grid w-full grid-cols-1 gap-6 md:grid-cols-3">
       <!-- card A: code editor -->
-      <article class="card-shell">
+      <article class="card-shell solution-card">
         <div class="card-copy">
           <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">Build real things, in bites</h3>
           <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">
@@ -169,7 +169,7 @@ const problems = [
       </article>
 
       <!-- card B: streak calendars + flame -->
-      <article class="card-shell">
+      <article class="card-shell solution-card">
         <div class="card-copy">
           <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">Progress you can actually see</h3>
           <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">
@@ -207,7 +207,7 @@ const problems = [
       </article>
 
       <!-- card C: community orbit -->
-      <article class="card-shell">
+      <article class="card-shell solution-card">
         <div class="card-copy">
           <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">Never learning alone</h3>
           <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">
@@ -237,6 +237,13 @@ const problems = [
     border: 1px solid var(--card-border);
     box-shadow: var(--card-shadow);
     background-image: var(--card-grad);
+  }
+
+  /* Light mode only: solution cards are light gray (#ededed) in Figma "Landing 7",
+     while the problem cards above stay white. Dark mode is unaffected. */
+  :global(.light) .card-shell.solution-card {
+    background-image: linear-gradient(#ededed, #ededed);
+    border-color: #e2e2e2;
   }
 
   .card-copy {
