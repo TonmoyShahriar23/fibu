@@ -32,8 +32,8 @@ const problems = [
       <!-- card 1: textbook fox -->
       <article class="card-shell">
         <div class="card-copy">
-          <h3 class="font-pixel text-[40px] leading-[0.95] text-white">{problems[0].title}</h3>
-          <p class="text-[16px] leading-[1.5] text-[#dedddd]">{problems[0].body}</p>
+          <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">{problems[0].title}</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">{problems[0].body}</p>
         </div>
         <div class="absolute left-[calc(50%-14px)] top-[146px] h-[392px] w-[362px] -translate-x-1/2">
           <span class="absolute" style="inset: 4.08% 8.29% 4.08% -0.28%;">
@@ -45,8 +45,8 @@ const problems = [
       <!-- card 2: frustrated fox + crossed-out doc -->
       <article class="card-shell">
         <div class="card-copy">
-          <h3 class="font-pixel text-[40px] leading-none text-white">{problems[1].title}</h3>
-          <p class="text-[16px] leading-[1.5] text-[#dedddd]">{problems[1].body}</p>
+          <h3 class="font-pixel text-[40px] leading-none text-white light:text-[#1c1512]">{problems[1].title}</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">{problems[1].body}</p>
         </div>
         <img
           src="/images/card-fox-frustrated.svg"
@@ -65,8 +65,8 @@ const problems = [
       <!-- card 3: fox reading alone -->
       <article class="card-shell">
         <div class="card-copy">
-          <h3 class="font-pixel text-[40px] leading-none text-white">{problems[2].title}</h3>
-          <p class="text-[16px] leading-[1.5] text-[#dedddd]">{problems[2].body}</p>
+          <h3 class="font-pixel text-[40px] leading-none text-white light:text-[#1c1512]">{problems[2].title}</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">{problems[2].body}</p>
         </div>
         <img
           src="/images/card-fox-alone.svg"
@@ -119,47 +119,48 @@ const problems = [
       <!-- card A: code editor -->
       <article class="card-shell">
         <div class="card-copy">
-          <h3 class="font-pixel text-[40px] leading-[0.95] text-white">Build real things, in bites</h3>
-          <p class="text-[16px] leading-[1.5] text-[#dedddd]">
+          <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">Build real things, in bites</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">
             10–15 minute daily missions. No lectures, no walls of text.
           </p>
         </div>
 
         <div
-          class="absolute left-1/2 top-[189px] flex w-[342px] max-w-[calc(100%-24px)] -translate-x-1/2 flex-col gap-2 rounded-[12px] border border-[rgba(128,128,128,0.2)] bg-[rgba(123,123,123,0.1)] p-2"
+          class="absolute left-1/2 top-[189px] flex w-[342px] max-w-[calc(100%-24px)] -translate-x-1/2 flex-col gap-2 rounded-[12px] border border-[rgba(128,128,128,0.2)] bg-[rgba(123,123,123,0.1)] p-2 light:border-[rgba(0,0,0,0.1)] light:bg-[#ececec]"
         >
           <div class="flex items-center gap-4 pl-2">
             <img src="/images/editor-traffic-dots.svg" alt="" class="h-2 w-10" loading="lazy" />
             <p class="font-dm-mono text-[14px] leading-[22px] text-[#606060]">console.js</p>
           </div>
           <div class="relative h-[173px] w-[326px] max-w-full">
-            <img src="/images/editor-panel-bg.svg" alt="" class="absolute inset-0 size-full" loading="lazy" />
+            <img src="/images/editor-panel-bg.svg" alt="" class="absolute inset-0 size-full light:hidden" loading="lazy" />
+            <img src="/images/editor-panel-bg-light.svg" alt="" class="absolute inset-0 hidden size-full light:block" loading="lazy" />
             <div
-              class="absolute left-[139px] top-0 flex h-8 items-center rounded-[6px] bg-[#171717] px-4 py-2"
+              class="absolute left-[139px] top-0 flex h-8 items-center rounded-[6px] bg-[#171717] px-4 py-2 light:bg-[#e4e4e4]"
             >
-              <p class="font-dm-mono whitespace-nowrap text-[14px] leading-[18px] text-[#9e9e9e]">Browser</p>
+              <p class="font-dm-mono whitespace-nowrap text-[14px] leading-[18px] text-[#9e9e9e] light:text-[#606060]">Browser</p>
             </div>
             <div class="absolute left-4 top-[6px] flex items-center justify-center gap-2">
               <img src="/images/icon-html5.svg" alt="" class="size-4" loading="lazy" />
-              <p class="font-dm-mono whitespace-nowrap text-[14px] leading-[22px] text-[#9e9e9e]">Index.html</p>
+              <p class="font-dm-mono whitespace-nowrap text-[14px] leading-[22px] text-[#9e9e9e] light:text-[#606060]">Index.html</p>
             </div>
             <div class="absolute left-1/2 top-[49px] flex w-[302px] -translate-x-1/2 flex-col gap-2">
               <div class="font-dm-mono flex items-start gap-4 whitespace-nowrap py-1 pl-3 text-[16px] leading-[22px]">
                 <p class="text-[#606060]">1</p>
-                <p class="text-[#dedddd]">{'function multiply(a, b) {'}</p>
+                <p class="text-[#dedddd] light:text-[#1c1512]">{'function multiply(a, b) {'}</p>
               </div>
               <div
-                class="flex items-start justify-between rounded-[8px] border-l border-[#e90000] bg-[#171616] py-1 pl-3 pr-1"
+                class="flex items-start justify-between rounded-[8px] border-l border-[#e90000] bg-[#171616] py-1 pl-3 pr-1 light:bg-[#e6e6e6]"
               >
                 <div class="flex items-center gap-4">
-                  <p class="font-dm-mono text-[16px] leading-[22px] text-[#f4f4f4]">2</p>
-                  <span class="h-4 w-px bg-[#f4f4f4]"></span>
+                  <p class="font-dm-mono text-[16px] leading-[22px] text-[#f4f4f4] light:text-[#1c1512]">2</p>
+                  <span class="h-4 w-px bg-[#f4f4f4] light:bg-[#1c1512]"></span>
                 </div>
-                <img src="/images/icon-eraser.svg" alt="" class="size-6" loading="lazy" />
+                <img src="/images/icon-eraser.svg" alt="" class="size-6 light:invert" loading="lazy" />
               </div>
               <div class="font-dm-mono flex items-start gap-4 whitespace-nowrap py-1 pl-3 text-[16px] leading-[22px]">
                 <p class="text-[#606060]">3</p>
-                <p class="text-[#9e9e9e]">{'}'}</p>
+                <p class="text-[#9e9e9e] light:text-[#606060]">{'}'}</p>
               </div>
             </div>
             <img src="/images/icon-copy.svg" alt="" class="absolute right-0 top-1 size-6" loading="lazy" />
@@ -170,8 +171,8 @@ const problems = [
       <!-- card B: streak calendars + flame -->
       <article class="card-shell">
         <div class="card-copy">
-          <h3 class="font-pixel text-[40px] leading-[0.95] text-white">Progress you can actually see</h3>
-          <p class="text-[16px] leading-[1.5] text-[#dedddd]">
+          <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">Progress you can actually see</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">
             XP, streaks, badges, levels — every session ends with proof you improved
           </p>
         </div>
@@ -185,7 +186,13 @@ const problems = [
         <img
           src="/images/streak-calendar-stack.png"
           alt=""
-          class="absolute left-1/2 top-[143px] w-[384px] max-w-none -translate-x-1/2"
+          class="absolute left-1/2 top-[143px] w-[384px] max-w-none -translate-x-1/2 light:hidden"
+          loading="lazy"
+        />
+        <img
+          src="/images/streak-calendar-stack-light.png"
+          alt=""
+          class="absolute left-1/2 top-[143px] hidden w-[384px] max-w-none -translate-x-1/2 light:block"
           loading="lazy"
         />
         <div
@@ -202,8 +209,8 @@ const problems = [
       <!-- card C: community orbit -->
       <article class="card-shell">
         <div class="card-copy">
-          <h3 class="font-pixel text-[40px] leading-[0.95] text-white">Never learning alone</h3>
-          <p class="text-[16px] leading-[1.5] text-[#dedddd]">
+          <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">Never learning alone</h3>
+          <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">
             A community of 2.64M+ learners, plus fibu and Grandma in your corner.
           </p>
         </div>
@@ -219,13 +226,6 @@ const problems = [
 </section>
 
 <style>
-  .heading-gradient {
-    background-image: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
   .card-shell {
     position: relative;
     height: 460px;
@@ -234,9 +234,9 @@ const problems = [
     margin-inline: auto;
     overflow: clip;
     border-radius: 24px;
-    background-image:
-      linear-gradient(-38.232deg, rgba(0, 0, 0, 0.2) 24.298%, rgba(102, 102, 102, 0.2) 97.924%),
-      linear-gradient(90deg, #171616 0%, #171616 100%);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+    background-image: var(--card-grad);
   }
 
   .card-copy {

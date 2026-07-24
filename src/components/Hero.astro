@@ -5,8 +5,8 @@
 // <main>, so this component must be rendered inside a `relative` container.
 ---
 
-<!-- backdrop: night-sky photo with fade-to-black, pixel arc -->
-<div class="pointer-events-none absolute inset-x-0 top-0 z-0" aria-hidden="true">
+<!-- backdrop: night-sky photo with fade-to-black, pixel arc (dark mode) -->
+<div class="pointer-events-none absolute inset-x-0 top-0 z-0 transition-opacity duration-500 light:opacity-0" aria-hidden="true">
   <div class="absolute left-1/2 top-0 ml-[50px] h-[1463px] w-[1882px] -translate-x-1/2">
     <img src="/images/hero-bg.png" alt="" class="size-full object-cover" />
     <div class="absolute inset-0 bg-gradient-to-b from-[rgba(0,0,0,0)] from-[57.28%] to-black"></div>
@@ -17,6 +17,9 @@
     </div>
   </div>
 </div>
+
+<!-- backdrop: warm light-mode glow (light mode only) -->
+<div class="hero-light-glow pointer-events-none absolute inset-x-0 top-0 z-0 hidden h-[1000px] opacity-0 transition-opacity duration-500 light:block light:opacity-100" aria-hidden="true"></div>
 
 <!-- floating pixel planets (above the phone mockup, like in Figma) -->
 <div class="pointer-events-none absolute inset-x-0 top-0 z-20 hidden md:block" aria-hidden="true">
@@ -30,20 +33,20 @@
 <section class="relative z-10 mx-auto mt-24 flex w-full max-w-[856px] flex-col items-center gap-12 px-4 lg:mt-[144px]">
   <div class="flex w-full flex-col items-center gap-8">
     <div
-      class="flex items-center justify-center gap-4 rounded-[32px] border border-[rgba(88,13,0,0.5)] bg-[rgba(7,0,0,0.5)] px-6 py-2"
+      class="flex items-center justify-center gap-4 rounded-[32px] border border-[rgba(88,13,0,0.5)] bg-[rgba(7,0,0,0.5)] px-6 py-2 light:border-[rgba(255,149,45,0.35)] light:bg-[rgba(255,255,255,0.75)] light:shadow-[0_4px_20px_rgba(255,149,45,0.12)]"
     >
       <img src="/images/hero-badge-dot.svg" alt="" class="size-2 shrink-0" />
-      <p class="font-pixel text-center text-[16px] uppercase leading-[1.7] tracking-[3px] text-[#dedddd] sm:text-[20px]">
+      <p class="font-pixel text-center text-[16px] uppercase leading-[1.7] tracking-[3px] text-[#dedddd] light:text-[#737373] sm:text-[20px]">
         Programming Hero is now <span class="text-[#ff952d]">Fibu</span>
       </p>
       <img src="/images/hero-badge-dot.svg" alt="" class="size-2 shrink-0" />
     </div>
 
     <div class="flex w-full flex-col gap-4 text-center">
-      <h1 class="font-pixel text-[40px] uppercase leading-[0.9] text-white sm:text-[52px] md:text-[68px] lg:text-[76px]">
+      <h1 class="font-pixel text-[40px] uppercase leading-[0.9] text-white light:text-[#1c1512] sm:text-[52px] md:text-[68px] lg:text-[76px]">
         You've tried to learn to code before. This time it sticks.
       </h1>
-      <p class="text-[18px] leading-[1.7] text-[#9e9e9e]">
+      <p class="text-[18px] leading-[1.7] text-[#9e9e9e] light:text-[#525252]">
         Fibu turns coding into a daily habit you actually want to keep — 15 minutes at a time, guided
         by fibu and backed up by Grandma, the character our own users thank in their reviews
       </p>
@@ -86,6 +89,12 @@
 </section>
 
 <style>
+  .hero-light-glow {
+    background:
+      radial-gradient(ellipse 55% 38% at 50% -8%, rgba(255, 149, 45, 0.1), transparent 70%),
+      radial-gradient(ellipse 45% 28% at 50% 6%, rgba(255, 179, 38, 0.06), transparent 72%);
+  }
+
   .planet {
     animation: float 7s ease-in-out infinite;
   }

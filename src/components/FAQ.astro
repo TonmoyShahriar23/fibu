@@ -56,37 +56,30 @@ const faqs = [
             aria-expanded={i === 0 ? 'true' : 'false'}
             aria-controls={`faq-answer-${i}`}
           >
-            <span class="font-geist text-[20px] font-medium leading-[1.5] tracking-[-0.2px] text-white">
+            <span class="font-geist text-[20px] font-medium leading-[1.5] tracking-[-0.2px] text-white light:text-[#1c1512]">
               {faq.question}
             </span>
             <span class="faq-icon relative size-6 shrink-0">
               <span class="absolute" style="inset: 8.33%;">
-                <img src="/images/faq-arrow-down.svg" alt="" class="block size-full" />
+                <img src="/images/faq-arrow-down.svg" alt="" class="block size-full light:invert" />
               </span>
             </span>
           </button>
           <div class="faq-answer" id={`faq-answer-${i}`}>
             <div class="overflow-hidden">
-              <p class="pt-4 text-[16px] leading-[1.6] tracking-[-0.16px] text-[#bebdbd]">
+              <p class="pt-4 text-[16px] leading-[1.6] tracking-[-0.16px] text-[#bebdbd] light:text-[#525252]">
                 {faq.answer}
               </p>
             </div>
           </div>
         </div>
-        {i < faqs.length - 1 && <img src="/images/faq-divider.svg" alt="" class="h-px w-full" aria-hidden="true" />}
+        {i < faqs.length - 1 && <img src="/images/faq-divider.svg" alt="" class="h-px w-full light:brightness-0 light:opacity-25" aria-hidden="true" />}
       </>
     ))}
   </div>
 </section>
 
 <style>
-  .heading-gradient {
-    background-image: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
   .faq-answer {
     display: grid;
     grid-template-rows: 0fr;

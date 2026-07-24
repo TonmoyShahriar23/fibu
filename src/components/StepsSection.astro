@@ -1,8 +1,27 @@
 ---
-// Figma node 14196:27317 ("1", y4858, 1440x796): #171616 panel, 32px radius,
-// 108/80 padding. Left: "Features" phone panel (14196:27319, 600x636, exported
-// as one image). Right: "Mission detail" column (576px, header + three steps
-// with glowing icon tiles and gradient connector lines at left 28px).
+// Figma node 14196:27317 (dark "1") / 14210:13595 (light "1"). Left: an
+// auto-rotating carousel of three phone screens (module select, quiz, profile)
+// with dedicated dark- and light-mode designs. Each set's 600x636 panels share
+// a pixel-identical bezel, so cross-fading only changes the screen. The theme
+// class swaps which set (dark vs light images) is shown. Right: three steps.
+const screens = [
+  {
+    dark: '/images/features-phone.png',
+    light: '/images/phone-screen-module-light.png',
+    alt: 'Fibu course screen listing NodeJs modules with progress rings',
+  },
+  {
+    dark: '/images/phone-screen-quiz.png',
+    light: '/images/phone-screen-quiz-light.png',
+    alt: 'Fibu quiz screen — choose the correct answer to a JavaScript question',
+  },
+  {
+    dark: '/images/phone-screen-profile.png',
+    light: '/images/phone-screen-profile-light.png',
+    alt: 'Fibu profile screen with quest points, hearts, streak and activity graph',
+  },
+];
+
 const steps = [
   {
     icon: '/images/step-icon-path.svg',
@@ -26,15 +45,50 @@ const steps = [
 ---
 
 <section
-  class="relative z-10 mx-auto mt-[120px] w-full max-w-[1440px] rounded-[32px] bg-[#171616] px-4 py-12 sm:px-8 lg:px-[108px] lg:py-[80px]"
+  class="relative z-10 mx-auto mt-[120px] w-full max-w-[1440px] rounded-[32px] bg-[#171616] px-4 py-12 light:border light:border-[#ececec] light:bg-[#f6f6f6] light:shadow-[0_8px_30px_rgba(0,0,0,0.04)] sm:px-8 lg:px-[108px] lg:py-[80px]"
 >
   <div class="flex flex-col items-center gap-12 lg:flex-row lg:gap-[48px]">
-    <img
-      src="/images/features-phone.png"
-      alt="Fibu app screen listing NodeJs course modules with progress circles"
-      class="w-full max-w-[600px] shrink-0"
-      loading="lazy"
-    />
+    <!-- phone carousel: static bezel, only the inner screen cross-fades -->
+    <div
+      class="phone-carousel w-full max-w-[600px] shrink-0"
+      role="group"
+      aria-roledescription="carousel"
+      aria-label="Fibu app screens"
+    >
+      <div class="relative w-full" style="aspect-ratio: 600 / 636;">
+        {screens.map((screen, i) => (
+          <div
+            class:list={['phone-screen absolute inset-0', i === 0 && 'is-active']}
+            aria-hidden={i === 0 ? 'false' : 'true'}
+          >
+            <img
+              src={screen.dark}
+              alt={screen.alt}
+              class="absolute inset-0 h-full w-full object-contain light:hidden"
+              draggable="false"
+            />
+            <img
+              src={screen.light}
+              alt={screen.alt}
+              class="absolute inset-0 hidden h-full w-full object-contain light:block"
+              draggable="false"
+            />
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-6 flex items-center justify-center gap-2.5" role="tablist" aria-label="Choose app screen">
+        {screens.map((screen, i) => (
+          <button
+            type="button"
+            class:list={['phone-dot', i === 0 && 'is-active']}
+            role="tab"
+            aria-selected={i === 0 ? 'true' : 'false'}
+            aria-label={`Show screen ${i + 1} of ${screens.length}`}
+          />
+        ))}
+      </div>
+    </div>
 
     <div class="flex w-full max-w-[576px] flex-col gap-[60px] xl:gap-[120px]">
       <div class="flex flex-col gap-4">
@@ -43,7 +97,7 @@ const steps = [
         >
           From zero to your first real project 3 steps
         </h2>
-        <p class="text-[18px] leading-[1.6] text-[#7e7e7e]">
+        <p class="text-[18px] leading-[1.6] text-[#7e7e7e] light:text-[#525252]">
           Expand your team beyond borders with employer's global human platform. Manage global
           payroll, compliance, and benefits.
         </p>
@@ -65,7 +119,7 @@ const steps = [
 
         {steps.map((step) => (
           <div class="flex items-center gap-6">
-            <div class="step-icon-tile relative shrink-0 rounded-[16px] border border-[#2e1200] p-3">
+            <div class="step-icon-tile relative shrink-0 rounded-[16px] border border-[#2e1200] p-3 light:border-[rgba(255,149,45,0.35)]">
               <span class="relative block size-8">
                 <span class="absolute" style={`inset: ${step.inset};`}>
                   <img src={step.icon} alt="" class="block size-full" loading="lazy" />
@@ -73,10 +127,10 @@ const steps = [
               </span>
             </div>
             <div class="flex flex-col gap-2">
-              <h3 class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white">
+              <h3 class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white light:text-[#1c1512]">
                 {step.title}
               </h3>
-              <p class="text-[16px] leading-[1.6] text-[#7e7e7e]">{step.body}</p>
+              <p class="text-[16px] leading-[1.6] text-[#7e7e7e] light:text-[#525252]">{step.body}</p>
             </div>
           </div>
         ))}
@@ -86,15 +140,126 @@ const steps = [
 </section>
 
 <style>
-  .heading-gradient {
-    background-image: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
   .step-icon-tile {
     background-color: rgba(99, 54, 0, 0.3);
     box-shadow: inset 0 0 12px 4px rgba(255, 149, 45, 0.5);
   }
+
+  :global(.light) .step-icon-tile {
+    background-color: #fdf4ea;
+    box-shadow: none;
+  }
+
+  /* Carousel: stacked screens cross-fade. The outgoing screen (.is-prev) stays
+     fully opaque beneath the incoming one (.is-active) as it fades in, so the
+     shared phone bezel never drops below 100% opacity — no frame flicker. */
+  .phone-screen {
+    opacity: 0;
+    z-index: 0;
+    transition: opacity 0.7s ease;
+    user-select: none;
+  }
+
+  .phone-screen.is-prev {
+    opacity: 1;
+    z-index: 1;
+  }
+
+  .phone-screen.is-active {
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .phone-dot {
+    height: 8px;
+    width: 8px;
+    border-radius: 9999px;
+    background-color: rgba(255, 255, 255, 0.28);
+    transition:
+      width 0.4s ease,
+      background-color 0.4s ease;
+    cursor: pointer;
+  }
+
+  .phone-dot.is-active {
+    width: 26px;
+    background-color: #ff952d;
+  }
+
+  :global(.light) .phone-dot {
+    background-color: rgba(28, 21, 18, 0.18);
+  }
+
+  :global(.light) .phone-dot.is-active {
+    background-color: #ff952d;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .phone-screen {
+      transition: none;
+    }
+  }
 </style>
+
+<script>
+  const carousel = document.querySelector<HTMLElement>('.phone-carousel');
+  if (carousel) {
+    const slides = Array.from(carousel.querySelectorAll<HTMLElement>('.phone-screen'));
+    const dots = Array.from(carousel.querySelectorAll<HTMLButtonElement>('.phone-dot'));
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const INTERVAL = 3500;
+    let index = 0;
+    let timer: number | undefined;
+    let inView = false;
+
+    const render = (next: number) => {
+      if (next === index) return;
+      slides.forEach((s) => s.classList.remove('is-prev'));
+      // current slide stays opaque underneath while the next one fades in on top
+      slides[index].classList.add('is-prev');
+      slides[index].classList.remove('is-active');
+      slides[index].setAttribute('aria-hidden', 'true');
+
+      index = next;
+      slides[index].classList.add('is-active');
+      slides[index].setAttribute('aria-hidden', 'false');
+
+      dots.forEach((d, i) => {
+        d.classList.toggle('is-active', i === index);
+        d.setAttribute('aria-selected', i === index ? 'true' : 'false');
+      });
+    };
+
+    const stop = () => {
+      if (timer !== undefined) {
+        window.clearInterval(timer);
+        timer = undefined;
+      }
+    };
+    const start = () => {
+      if (reduce || !inView || timer !== undefined) return;
+      timer = window.setInterval(() => render((index + 1) % slides.length), INTERVAL);
+    };
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => {
+        render(i);
+        stop();
+        start();
+      });
+    });
+
+    carousel.addEventListener('mouseenter', stop);
+    carousel.addEventListener('mouseleave', start);
+
+    // Only auto-advance while the carousel is on screen.
+    const io = new IntersectionObserver(
+      (entries) => {
+        inView = entries[0].isIntersecting;
+        inView ? start() : stop();
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(carousel);
+  }
+</script>

@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Class-based theming: dark is the baseline (matches the Figma design). A `light`
+   custom variant lets components opt individual elements into a light palette via
+   `light:` utilities, while shared surfaces switch through the CSS variables below. */
+@custom-variant light (&:where(.light, .light *));
+
 /* Self-hosted Jersey 10 (OFL) — the design's pixel display font. Served locally
    because CDN font loading proved unreliable in the user's browser. */
 @font-face {
@@ -32,7 +37,59 @@
   --font-fira: "Fira Code", ui-monospace, monospace;
 }
 
+/* ---- Theme tokens: dark baseline ---- */
+:root {
+  color-scheme: dark;
+  --page-bg: #000000;
+  /* pixel display headings (white → fade) */
+  --heading-grad: linear-gradient(to bottom, #ffffff 0%, #0c0c0c 182%);
+  /* problem/solution cards */
+  --card-grad:
+    linear-gradient(-38.232deg, rgba(0, 0, 0, 0.2) 24.298%, rgba(102, 102, 102, 0.2) 97.924%),
+    linear-gradient(90deg, #171616 0%, #171616 100%);
+  /* two-guides callout cards */
+  --guide-grad-fibu: linear-gradient(-27.216deg, rgba(0, 0, 0, 0.2) 24.298%, rgba(255, 149, 45, 0.2) 97.924%);
+  --guide-grad-grandma: linear-gradient(-31.877deg, rgba(0, 0, 0, 0.2) 24.298%, rgba(255, 149, 45, 0.2) 97.924%);
+  --card-border: transparent;
+  --card-shadow: none;
+}
+
+/* ---- Theme tokens: light overrides (Figma "Landing 7": white page, #f6f6f6
+   panels, white cards, neutral grays) ---- */
+:root.light {
+  color-scheme: light;
+  --page-bg: #ffffff;
+  --heading-grad: linear-gradient(to bottom, #0a0a0a 0%, #b3b3b3 172%);
+  --card-grad: linear-gradient(#ffffff, #ffffff);
+  --guide-grad-fibu: linear-gradient(-27.216deg, #ffffff 22%, #efe9e2 99%);
+  --guide-grad-grandma: linear-gradient(-31.877deg, #ffffff 22%, #efe9e2 99%);
+  --card-border: #e9e9e9;
+  --card-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+}
+
 body {
   font-family: var(--font-sans);
-  background: #000;
+  background: var(--page-bg);
+}
+
+/* Shared pixel-heading treatment, now theme-aware via --heading-grad. */
+.heading-gradient {
+  background-image: var(--heading-grad);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Smooth cross-fade applied only during an active toggle (added/removed by JS),
+   so it never interferes with hover transitions in normal use. */
+html.theme-anim,
+html.theme-anim *,
+html.theme-anim *::before,
+html.theme-anim *::after {
+  transition:
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease,
+    fill 0.35s ease,
+    box-shadow 0.35s ease !important;
 }

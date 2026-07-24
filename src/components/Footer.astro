@@ -11,7 +11,7 @@ const columns = [
 ];
 ---
 
-<footer class="relative z-0 -mt-[80px] w-full rounded-t-[40px] bg-[#171616]">
+<footer class="relative z-0 -mt-[80px] w-full rounded-t-[40px] bg-[#171616] light:bg-[#f6f6f6]">
   <div class="mx-auto flex w-full max-w-[1224px] flex-col gap-16 px-4 pb-12 pt-[100px] lg:gap-[120px] lg:pb-[48px] lg:pt-[160px]">
     <!-- upper -->
     <div class="flex flex-col gap-12 lg:flex-row lg:items-start lg:justify-between">
@@ -28,11 +28,11 @@ const columns = [
               <img src="/images/logo-fox-fill.svg" alt="" class="block size-full" loading="lazy" />
             </span>
             <span class="absolute" style="inset: 38.55% 0 16.11% 41.02%;">
-              <img src="/images/logo-wordmark.svg" alt="" class="block size-full" loading="lazy" />
+              <img src="/images/logo-wordmark.svg" alt="" class="block size-full transition-[filter] duration-300 light:brightness-0" loading="lazy" />
             </span>
           </a>
 
-          <div class="flex items-start gap-5">
+          <div class="flex items-start gap-5 [&_img]:transition-[filter] [&_img]:duration-300 light:[&_img]:brightness-0">
             <a href="#x" aria-label="Fibu on X" class="relative block size-5 overflow-clip transition-opacity hover:opacity-70">
               <span class="absolute" style="inset: 7.93% 4.17% 9.21% 4.17%;">
                 <img src="/images/social-x.svg" alt="" class="block size-full" loading="lazy" />
@@ -61,7 +61,7 @@ const columns = [
         </div>
 
         <div class="flex items-center gap-6">
-          <p class="font-geist w-[100px] text-[14px] leading-[1.5] tracking-[-0.2px] text-white opacity-80">
+          <p class="font-geist w-[100px] text-[14px] leading-[1.5] tracking-[-0.2px] text-white opacity-80 light:text-[#1c1512]">
             Golden Partner Award
           </p>
           <div class="flex items-center gap-[23px]">
@@ -71,7 +71,7 @@ const columns = [
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-8 text-[16px] text-white sm:grid-cols-4 lg:flex lg:gap-14">
+      <div class="grid grid-cols-2 gap-8 text-[16px] text-white light:text-[#1c1512] sm:grid-cols-4 lg:flex lg:gap-14">
         {columns.map((col) => (
           <div class="flex flex-col gap-4">
             <p class="font-geist w-[136px] font-medium leading-[1.65] tracking-[-0.32px]">{col.title}</p>
@@ -89,12 +89,12 @@ const columns = [
 
     <!-- lower -->
     <div class="flex flex-wrap items-center gap-x-[26px] gap-y-6">
-      <p class="whitespace-nowrap text-[16px] leading-[1.6] tracking-[-0.16px] text-white opacity-50">
+      <p class="whitespace-nowrap text-[16px] leading-[1.6] tracking-[-0.16px] text-white opacity-50 light:text-[#1c1512]">
         © Fibu.dev 2026 - All Right Reserved
       </p>
-      <img src="/images/footer-divider.svg" alt="" class="hidden h-px min-w-px flex-1 lg:block" aria-hidden="true" />
+      <img src="/images/footer-divider.svg" alt="" class="hidden h-px min-w-px flex-1 light:brightness-0 light:opacity-30 lg:block" aria-hidden="true" />
       <div class="flex flex-wrap items-center gap-4">
-        <p class="whitespace-nowrap text-[16px] leading-[1.6] tracking-[-0.16px] text-white opacity-70">
+        <p class="whitespace-nowrap text-[16px] leading-[1.6] tracking-[-0.16px] text-white opacity-70 light:text-[#1c1512]">
           Install on your device
         </p>
         <div class="flex items-center gap-2">
