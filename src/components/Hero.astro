@@ -33,7 +33,7 @@
 <section class="relative z-10 mx-auto mt-24 flex w-full max-w-[856px] flex-col items-center gap-12 px-4 lg:mt-[144px]">
   <div class="flex w-full flex-col items-center gap-8">
     <div
-      class="flex items-center justify-center gap-4 rounded-[32px] border border-[rgba(88,13,0,0.5)] bg-[rgba(7,0,0,0.5)] px-6 py-2 light:border-[rgba(255,149,45,0.35)] light:bg-[rgba(255,255,255,0.75)] light:shadow-[0_4px_20px_rgba(255,149,45,0.12)]"
+      class="flex items-center justify-center gap-4 rounded-[32px] border border-[rgba(88,13,0,0.5)] bg-[rgba(7,0,0,0.5)] px-6 py-2 light:border-[rgba(220,140,60,0.4)] light:bg-[#fdf5ec] light:shadow-[0_4px_20px_rgba(255,149,45,0.12)]"
     >
       <img src="/images/hero-badge-dot.svg" alt="" class="size-2 shrink-0" />
       <p class="font-pixel text-center text-[16px] uppercase leading-[1.7] tracking-[3px] text-[#dedddd] light:text-[#737373] sm:text-[20px]">
@@ -89,10 +89,13 @@
 </section>
 
 <style>
+  /* Light-mode hero wash — matches Figma "Landing 7" (image-1 blend result):
+     a warm peach glow peaking at top-center (~rgba(255,149,45,0.5)) fading to
+     white down and outward. Sampled from the Figma render. */
   .hero-light-glow {
     background:
-      radial-gradient(ellipse 55% 38% at 50% -8%, rgba(255, 149, 45, 0.1), transparent 70%),
-      radial-gradient(ellipse 45% 28% at 50% 6%, rgba(255, 179, 38, 0.06), transparent 72%);
+      radial-gradient(ellipse 58% 44% at 50% -6%, rgba(255, 149, 45, 0.5) 0%, rgba(255, 173, 79, 0.16) 46%, transparent 72%),
+      radial-gradient(ellipse 95% 34% at 50% -2%, rgba(255, 201, 140, 0.2) 0%, transparent 70%);
   }
 
   .planet {
