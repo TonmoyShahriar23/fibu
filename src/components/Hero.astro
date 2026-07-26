@@ -18,8 +18,16 @@
   </div>
 </div>
 
-<!-- backdrop: warm light-mode glow (light mode only) -->
-<div class="hero-light-glow pointer-events-none absolute inset-x-0 top-0 z-0 hidden h-[1000px] opacity-0 transition-opacity duration-500 light:block light:opacity-100" aria-hidden="true"></div>
+<!-- backdrop: light-mode hero (light mode only) — matches Figma "Landing 7":
+     the night-sky photo inverted to dark-on-white leaves a faint tan starfield,
+     and a warm peach glow peaks at top-center behind the nav. -->
+<div class="pointer-events-none absolute inset-x-0 top-0 z-0 opacity-0 transition-opacity duration-500 light:opacity-100" aria-hidden="true">
+  <div class="absolute left-1/2 top-0 ml-[50px] h-[1463px] w-[1882px] -translate-x-1/2">
+    <img src="/images/hero-bg.png" alt="" class="hero-speckles size-full object-cover" />
+    <div class="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0)] from-[42%] to-white"></div>
+  </div>
+  <div class="hero-light-glow absolute inset-x-0 top-0 h-[900px]"></div>
+</div>
 
 <!-- floating pixel planets (above the phone mockup, like in Figma) -->
 <div class="pointer-events-none absolute inset-x-0 top-0 z-20 hidden md:block" aria-hidden="true">
@@ -89,13 +97,27 @@
 </section>
 
 <style>
-  /* Light-mode hero wash — matches Figma "Landing 7" (image-1 blend result):
-     a warm peach glow peaking at top-center (~rgba(255,149,45,0.5)) fading to
-     white down and outward. Sampled from the Figma render. */
+  /* Light-mode hero wash — matches Figma "Landing 7". Peak peach at top-center
+     is rgb(254,203,153) = rgba(255,149,45,0.5) over white; it fades to white by
+     ~±500px horizontally and ~450px down. Pixel-sampled from the Figma render. */
+  /* Night-sky photo inverted to near-white with faint dark speckles (the tan
+     starfield in Figma's light hero). filter:invert is backdrop-independent, so
+     it survives the backdrop's isolating stacking context. */
+  .hero-speckles {
+    opacity: 0.28;
+    filter: invert(1);
+  }
+
   .hero-light-glow {
     background:
-      radial-gradient(ellipse 58% 44% at 50% -6%, rgba(255, 149, 45, 0.5) 0%, rgba(255, 173, 79, 0.16) 46%, transparent 72%),
-      radial-gradient(ellipse 95% 34% at 50% -2%, rgba(255, 201, 140, 0.2) 0%, transparent 70%);
+      radial-gradient(
+        850px 560px at 50% -30px,
+        rgba(255, 149, 45, 0.5) 0%,
+        rgba(255, 149, 45, 0.3) 20%,
+        rgba(255, 149, 45, 0.12) 45%,
+        rgba(255, 149, 45, 0.04) 68%,
+        transparent 88%
+      );
   }
 
   .planet {
