@@ -78,44 +78,72 @@ const problems = [
     </div>
   </div>
 
-  <!-- ============ connectors: cards converge to app icon ============ -->
-  <div class="relative hidden h-[280px] md:block" aria-hidden="true">
-    <div class="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[#2c2a2a]"></div>
-    <img src="/images/connector-down.svg" alt="" class="absolute left-1/2 top-0 h-full w-[428px]" />
-    <img
-      src="/images/connector-down.svg"
-      alt=""
+  <!-- ===== connector: the three problem cards converge into the fibu icon ===== -->
+  <div class="relative hidden h-[280px] md:block" aria-hidden="true" style="color: var(--connector);">
+    <svg
+      class="absolute left-1/2 top-0 h-full w-[428px]"
+      preserveAspectRatio="none"
+      viewBox="0 0 429 280"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M428.5 0C428.5 113.555 0.5 113.556 0.5 280" stroke="currentColor" />
+    </svg>
+    <svg
       class="absolute top-0 h-full w-[428px] -scale-x-100"
       style="left: calc(50% - 428px);"
-    />
+      preserveAspectRatio="none"
+      viewBox="0 0 429 280"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M428.5 0C428.5 113.555 0.5 113.556 0.5 280" stroke="currentColor" />
+    </svg>
   </div>
 
-  <!-- fibu app icon -->
+  <!-- fibu app icon: the pinch point of the hourglass -->
   <div class="mt-10 flex justify-center md:mt-0">
     <img src="/images/app-icon.png" alt="Fibu app icon" class="size-[120px] rounded-[24px]" loading="lazy" />
   </div>
 
-  <!-- ======================= solution ======================= -->
-  <h2
-    class="heading-gradient font-pixel mx-auto mt-[100px] max-w-[552px] text-center text-[32px] uppercase leading-none sm:text-[44px] md:mt-[176px] lg:text-[64px]"
-  >
-    The Solution (Meet fibu)
-  </h2>
-
-  <div class="relative mt-10">
-    <!-- connectors fanning out behind the cards -->
-    <div class="pointer-events-none absolute inset-x-0 top-0 hidden h-[280px] md:block" aria-hidden="true">
-      <div class="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[#2c2a2a]"></div>
-      <img src="/images/connector-up.svg" alt="" class="absolute left-1/2 top-0 h-full w-[428px]" />
-      <img
-        src="/images/connector-up.svg"
-        alt=""
-        class="absolute top-0 h-full w-[428px] -scale-x-100"
+  <!-- ===== solution: the icon fans back out; heading nested in the lower flare ===== -->
+  <!-- flow-root keeps the heading's original top margin from collapsing, so the
+       connector below still anchors to the icon while every block keeps its size -->
+  <div class="relative flow-root">
+    <!-- diverging connector: icon → the three solution cards -->
+    <div
+      class="pointer-events-none absolute inset-x-0 top-0 hidden h-[280px] md:block"
+      aria-hidden="true"
+      style="color: var(--connector);"
+    >
+      <svg
+        class="absolute left-1/2 top-0 h-full w-[428px] -scale-y-100"
+        preserveAspectRatio="none"
+        viewBox="0 0 429 280"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M428.5 0C428.5 113.555 0.5 113.556 0.5 280" stroke="currentColor" />
+      </svg>
+      <svg
+        class="absolute top-0 h-full w-[428px] -scale-x-100 -scale-y-100"
         style="left: calc(50% - 428px);"
-      />
+        preserveAspectRatio="none"
+        viewBox="0 0 429 280"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M428.5 0C428.5 113.555 0.5 113.556 0.5 280" stroke="currentColor" />
+      </svg>
     </div>
 
-    <div class="relative grid w-full grid-cols-1 gap-6 md:grid-cols-3">
+    <h2
+      class="heading-gradient font-pixel relative mx-auto mt-[100px] max-w-[552px] text-center text-[32px] uppercase leading-none sm:text-[44px] md:mt-[176px] lg:text-[64px]"
+    >
+      The Solution (Meet fibu)
+    </h2>
+
+    <div class="relative mt-10 grid w-full grid-cols-1 gap-6 md:grid-cols-3">
       <!-- card A: code editor -->
       <article class="card-shell solution-card">
         <div class="card-copy">

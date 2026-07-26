@@ -52,6 +52,8 @@
   --guide-grad-grandma: linear-gradient(-31.877deg, rgba(0, 0, 0, 0.2) 24.298%, rgba(255, 149, 45, 0.2) 97.924%);
   --card-border: transparent;
   --card-shadow: none;
+  /* hourglass connector lines around the fibu icon */
+  --connector: #2c2a2a;
 }
 
 /* ---- Theme tokens: light overrides (Figma "Landing 7": white page, #f6f6f6
@@ -69,6 +71,8 @@
   --guide-grad-grandma: linear-gradient(135deg, #ffebd8 0%, #ffffff 100%);
   --card-border: transparent;
   --card-shadow: none;
+  /* connector lines are a soft light-gray on the white page */
+  --connector: #d4d4d4;
 }
 
 body {

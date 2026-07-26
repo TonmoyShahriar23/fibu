@@ -113,8 +113,14 @@ const testimonials = [
 </section>
 
 <style>
-  .fade-grid {
-    -webkit-mask-image: linear-gradient(to bottom, #000 51.7%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 51.7%, transparent 100%);
+  /* The peek-fade is calibrated for the 3-column (3-row) grid at xl. Below xl the
+     grid grows to 5 rows (md) or 9 rows (mobile), where a fade from 51.7% would
+     render half the testimonials invisible — so only apply it once 3 columns
+     are in play. */
+  @media (min-width: 1280px) {
+    .fade-grid {
+      -webkit-mask-image: linear-gradient(to bottom, #000 51.7%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 51.7%, transparent 100%);
+    }
   }
 </style>
