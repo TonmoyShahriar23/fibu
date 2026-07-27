@@ -3,6 +3,23 @@
 // backdrop layers (image 1, pixel arc, ph_planet decorations) that sit behind
 // the navbar and phone mockup. Backdrop divs are absolutely positioned against
 // <main>, so this component must be rendered inside a `relative` container.
+
+// Headline is split per letter for the typewriter loop. Letters are grouped by
+// word because each letter renders as an inline-block (transforms don't apply to
+// inline boxes) and a bare run of them would let a line break fall mid-word.
+//
+// Every letter runs the same infinite cycle (`--type-cycle` in the style block)
+// offset by its own delay, which is what makes them land one after another. The
+// 48 letters here span 47 * 55ms = 2.6s of typing, and the cycle's trailing
+// hidden phase (38% of 9s = 3.4s) is longer than that, so the first letter never
+// retypes while the last is still clearing. Raising the stagger or the headline
+// length means raising the cycle to match.
+const headline = "You've tried to learn to code before. This time it sticks.";
+const CHAR_STAGGER_MS = 55;
+let charIndex = 0;
+const headlineWords = headline.split(" ").map((word) => ({
+  chars: [...word].map((char) => ({ char, delay: charIndex++ * CHAR_STAGGER_MS })),
+}));
 ---
 
 <!-- backdrop: night-sky photo with fade-to-black, pixel arc (dark mode) -->
@@ -59,8 +76,22 @@
     </div>
 
     <div class="flex w-full flex-col gap-4 text-center">
-      <h1 class="font-pixel text-[40px] uppercase leading-[0.9] text-white light:text-[#1c1512] sm:text-[52px] md:text-[68px] lg:text-[76px]">
-        You've tried to learn to code before. This time it sticks.
+      <h1
+        class="hero-headline font-pixel text-[40px] uppercase leading-[0.9] text-white light:text-[#1c1512] sm:text-[52px] md:text-[68px] lg:text-[76px]"
+        aria-label={headline}
+      >
+        {
+          headlineWords.map((word, w) => (
+            <>
+              <span class="hero-word" aria-hidden="true">
+                {word.chars.map(({ char, delay }) => (
+                  <span class="hero-char" style={`animation-delay: ${delay}ms`}>{char}</span>
+                ))}
+              </span>
+              {w < headlineWords.length - 1 ? " " : ""}
+            </>
+          ))
+        }
       </h1>
       <p class="text-[18px] leading-[1.7] text-[#9e9e9e] light:text-[#525252]">
         Fibu turns coding into a daily habit you actually want to keep — 15 minutes at a time, guided
@@ -114,6 +145,42 @@
   .hero-speckles {
     opacity: 0.28;
     filter: invert(1);
+  }
+
+  /* Headline types one letter at a time, holds the full line, clears, repeats.
+     Each word is an inline-block so a line break can only land between words,
+     never between two letters. */
+  .hero-headline {
+    --type-cycle: 9s;
+  }
+
+  .hero-word {
+    display: inline-block;
+  }
+
+  /* steps(1, end) holds each keyframe's value until the next one, so letters cut
+     in and out instantly the way a typewriter strikes rather than fading.
+     `both` matters: without it a letter would sit visible through its delay and
+     then blink off when its animation finally started. */
+  .hero-char {
+    display: inline-block;
+    animation: type-loop var(--type-cycle) steps(1, end) infinite both;
+  }
+
+  /* 0-2%: waiting to be struck. 2%: appears. 62%: clears for the next pass. */
+  @keyframes type-loop {
+    0% {
+      opacity: 0;
+    }
+    2% {
+      opacity: 1;
+    }
+    62% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 0;
+    }
   }
 
   .hero-light-glow {
@@ -173,7 +240,8 @@
 
   @media (prefers-reduced-motion: reduce) {
     .planet,
-    .planet-spin {
+    .planet-spin,
+    .hero-char {
       animation: none;
     }
   }
