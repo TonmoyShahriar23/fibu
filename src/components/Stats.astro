@@ -2,19 +2,87 @@
 // Figma "Stat Item" nodes 14196:27730 / 27737 / 27744 — three 392px columns
 // (24px gutters) sitting directly below the phone mockup at page y1618.
 const stats = [
-  { value: '12,500', title: 'Monthly Active Users' },
-  { value: '78%', title: 'Engagement Rate' },
-  { value: '68%', title: 'Retention Rate' },
+  { value: 12500, suffix: '', title: 'Monthly Active Users' },
+  { value: 78, suffix: '%', title: 'Engagement Rate' },
+  { value: 68, suffix: '%', title: 'Retention Rate' },
 ];
 ---
 
-<section class="relative z-10 mx-auto grid w-full max-w-[1224px] grid-cols-1 gap-6 px-4 text-center sm:grid-cols-3">
+<section
+  id="stats"
+  class="relative z-10 mx-auto grid w-full max-w-[1224px] grid-cols-1 gap-6 px-4 text-center sm:grid-cols-3"
+>
   {stats.map((stat) => (
     <div class="flex flex-col gap-4">
-      <p class="font-pixel text-[72px] leading-[0.95] text-[#ff952d] lg:text-[104px]">{stat.value}</p>
+      <p
+        class="stat-value font-pixel text-[72px] leading-[0.95] text-[#ff952d] tabular-nums lg:text-[104px]"
+        data-count-to={stat.value}
+        data-suffix={stat.suffix}
+      >
+        {stat.value.toLocaleString('en-US')}{stat.suffix}
+      </p>
       <p class="font-geist text-[20px] leading-[1.4] tracking-[-0.48px] text-[#9e9e9e] light:text-[#525252] lg:text-[24px]">
         {stat.title}
       </p>
     </div>
   ))}
 </section>
+
+<script>
+  const section = document.getElementById('stats');
+  const counters = Array.from(
+    document.querySelectorAll<HTMLElement>('#stats .stat-value')
+  ).map((el) => ({
+    el,
+    target: Number(el.dataset.countTo ?? 0),
+    suffix: el.dataset.suffix ?? '',
+  }));
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (section && counters.length && !reduceMotion) {
+    const DURATION = 2000;
+    const render = (value: number, suffix: string) =>
+      `${Math.round(value).toLocaleString('en-US')}${suffix}`;
+
+    // Zero everything out up front so the counters start from 0 rather than
+    // flashing their final value. (Server-rendered markup keeps the real
+    // numbers for no-JS / reduced-motion visitors.)
+    counters.forEach(({ el, suffix }) => {
+      el.textContent = render(0, suffix);
+    });
+
+    // easeOutCubic — quick off the mark, gently settling into the final value.
+    const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+
+    // One shared clock drives all three counters, so they advance together and
+    // land on their final values in the same frame.
+    const run = (start: number) => {
+      const step = (now: number) => {
+        const progress = Math.min((now - start) / DURATION, 1);
+        const eased = ease(progress);
+
+        counters.forEach(({ el, target, suffix }) => {
+          el.textContent = render(target * eased, suffix);
+        });
+
+        if (progress < 1) requestAnimationFrame(step);
+      };
+
+      requestAnimationFrame(step);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          observer.disconnect();
+          run(performance.now());
+        });
+      },
+      { threshold: 0.4 }
+    );
+
+    observer.observe(section);
+  }
+</script>
