@@ -89,7 +89,8 @@ const problems = [
   </div>
 
   <!-- ===== connector: the three problem cards converge into the fibu icon ===== -->
-  <!-- All three nodes start together and land on the hub in the same frame. -->
+  <!-- All three nodes start together and land on the hub in the same frame; the
+       outbound wires below only fire once they've arrived. -->
   <div class="relative hidden h-[280px] md:block" aria-hidden="true" style="color: var(--connector);">
     <Connector id="wire-in-right" class="left-1/2 w-[428px]" />
     <Connector id="wire-in-left" class="w-[428px] -scale-x-100" style="left: calc(50% - 428px);" />
@@ -114,20 +115,21 @@ const problems = [
   <div class="relative flow-root">
     <!-- diverging connector: icon → the three solution cards -->
     <!-- The -scale-y-100 flip puts the hub at the path's END, so travel is
-         reversed to keep the node flowing outward from the icon. The half-cycle
-         head start makes it read as one pulse continuing through the hub. -->
+         reversed to keep the node flowing outward from the icon. These run in
+         the second half of the cycle — they leave only once the three inbound
+         nodes have landed on the hub. -->
     <div
       class="pointer-events-none absolute inset-x-0 top-0 hidden h-[280px] md:block"
       aria-hidden="true"
       style="color: var(--connector);"
     >
-      <Connector id="wire-out-right" class="left-1/2 w-[428px] -scale-y-100" reverse begin="-1.6s" />
+      <Connector id="wire-out-right" class="left-1/2 w-[428px] -scale-y-100" reverse phase="second" />
       <Connector
         id="wire-out-left"
         class="w-[428px] -scale-x-100 -scale-y-100"
         style="left: calc(50% - 428px);"
         reverse
-        begin="-1.6s"
+        phase="second"
       />
     </div>
 

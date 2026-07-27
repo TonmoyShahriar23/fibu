@@ -1,8 +1,12 @@
 ---
 // One connector wire plus the node that rides it. `d` is the Figma hourglass
 // curve (nodes 14196:26564/26565 et al.); it's only overridden for the straight
-// drop from the middle card. The node is drawn after the path so it sits on top,
-// and `reverse` flips travel direction for the wires that fan out of the hub.
+// drop from the middle card. The node is drawn after the path so it sits on top.
+//
+// `reverse` flips travel direction for the wires that fan out of the hub (their
+// -scale-y-100 puts the hub at the path's end). `phase` picks which half of the
+// shared cycle the node moves in, so the inbound leg finishes at the hub before
+// the outbound leg leaves it.
 interface Props {
   id: string;
   d?: string;
@@ -10,7 +14,7 @@ interface Props {
   class?: string;
   style?: string;
   reverse?: boolean;
-  begin?: string;
+  phase?: 'first' | 'second';
 }
 
 const {
@@ -20,12 +24,30 @@ const {
   class: className = '',
   style,
   reverse = false,
-  begin = '0s',
+  phase = 'first',
 } = Astro.props;
 
-// One clock for every wire, so nodes on the converging side reach the hub in the
-// same frame.
-const DURATION = '3.2s';
+// Every wire runs this one clock, and SMIL starts them all at document load, so
+// the two legs stay locked in step: 3.2s travelling, 3.2s waiting its turn.
+const CYCLE = '6.4s';
+const HALVES = '0;0.5;1';
+
+const second = phase === 'second';
+
+// Three keyPoints: travel across the active half, park at the far end for the
+// other half. Parking is invisible — opacity is 0 outside the active half.
+const keyPoints = reverse
+  ? second
+    ? '1;1;0'
+    : '1;0;0'
+  : second
+    ? '0;0;1'
+    : '0;1;1';
+
+// Quick fade at each end so the node materialises out of its origin and is
+// absorbed on arrival rather than popping in and out.
+const fadeValues = second ? '0;0;1;1;0' : '0;1;1;0;0';
+const fadeKeyTimes = second ? '0;0.5;0.53;0.97;1' : '0;0.03;0.47;0.5;1';
 ---
 
 <svg
@@ -37,22 +59,31 @@ const DURATION = '3.2s';
   xmlns="http://www.w3.org/2000/svg"
 >
   <path id={id} d={d} stroke="currentColor" />
-  <g class="flow-node">
+  <!-- Base opacity 0: the node only exists while its animation is running, so
+       nothing is left parked on the wire between turns. -->
+  <g class="flow-node" opacity="0">
     <circle r="9" fill="#ff952d" opacity="0.16"></circle>
     <circle r="4.5" fill="#ff952d" opacity="0.4"></circle>
     <circle r="2.25" fill="#ffcb96"></circle>
     <!-- keyPoints walks the path by arc length, so the node holds a steady speed
          through the curve's tight bend instead of surging at the ends. -->
     <animateMotion
-      dur={DURATION}
-      begin={begin}
+      dur={CYCLE}
       repeatCount="indefinite"
       calcMode="linear"
-      keyPoints={reverse ? '1;0' : '0;1'}
-      keyTimes="0;1"
+      keyPoints={keyPoints}
+      keyTimes={HALVES}
     >
       <mpath href={`#${id}`} xlink:href={`#${id}`}></mpath>
     </animateMotion>
+    <animate
+      attributeName="opacity"
+      dur={CYCLE}
+      repeatCount="indefinite"
+      calcMode="linear"
+      values={fadeValues}
+      keyTimes={fadeKeyTimes}
+    ></animate>
   </g>
 </svg>
 
