@@ -1,0 +1,118 @@
+---
+// Card C's orbit art (Figma 14196:26797). The export baked the ten portraits
+// into community-orbit.png; they were split into community-orbit-bg.png — glow
+// and arcs, with the portraits inpainted away at constant radius so the strokes
+// stay unbroken — plus one 40px sprite each, so they can travel their orbits.
+// The coordinates below are the portraits' original centres in the 392x429
+// artwork, which makes the first frame identical to the export.
+
+// Centre of the four concentric arcs, fitted from the artwork's strokes to
+// within half a pixel. It sits below the card, so every orbit leaves through the
+// bottom edge.
+const CENTRE = { x: 281, y: 462.5 };
+const BOX = { w: 392, h: 429 };
+const DISC_R = 20;
+const SPEED = 30; // px/s along the arc — matched across orbits, so the inner
+                  // ones sweep more degrees per second than the outer ones
+const SKIP = 0.05; // share of each loop spent crossing the hidden side
+
+const portraits = [
+  { src: '/images/orbit-avatar-1.png', x: 263, y: 149 },
+  { src: '/images/orbit-avatar-2.png', x: 356, y: 212 },
+  { src: '/images/orbit-avatar-3.png', x: 177, y: 226 },
+  { src: '/images/orbit-avatar-4.png', x: 51, y: 245 },
+  { src: '/images/orbit-avatar-5.png', x: 295, y: 271 },
+  { src: '/images/orbit-avatar-6.png', x: 142, y: 336 },
+  { src: '/images/orbit-avatar-7.png', x: 239, y: 348 },
+  { src: '/images/orbit-avatar-8.png', x: 345, y: 358 },
+  { src: '/images/orbit-avatar-9.png', x: 35, y: 381 },
+  { src: '/images/orbit-avatar-10.png', x: 168, y: 419 },
+];
+
+const DEG = 180 / Math.PI;
+const r2 = (n: number) => Number(n.toFixed(2));
+const r4 = (n: number) => Number(n.toFixed(4));
+const at = (r: number, deg: number): [number, number] => [
+  CENTRE.x + r * Math.cos(deg / DEG),
+  CENTRE.y + r * Math.sin(deg / DEG),
+];
+
+const nodes = portraits.map(({ src, x, y }) => {
+  const r = Math.hypot(x - CENTRE.x, y - CENTRE.y);
+  // negative angles are above the centre, i.e. the part of the circle on the card
+  const start = Math.atan2(y - CENTRE.y, x - CENTRE.x) * DEG;
+
+  // Angles at which the disc has fully cleared the card. Travel runs between
+  // them and the remainder of the circle is off-card, so the loop's jump back to
+  // the entry point is never on screen.
+  const underBottom = Math.asin(Math.min(1, (CENTRE.y - (BOX.h + DISC_R)) / r)) * DEG;
+  const pastLeft = CENTRE.x + DISC_R <= r ? -Math.acos(-(CENTRE.x + DISC_R) / r) * DEG : -180;
+  const pastRight = BOX.w + DISC_R - CENTRE.x <= r ? -Math.acos((BOX.w + DISC_R - CENTRE.x) / r) * DEG : 0;
+  const from = Math.max(-180 + underBottom, pastLeft);
+  const to = Math.min(-underBottom, pastRight);
+
+  const sweep = to - from;
+  const dur = sweep / ((SPEED / r) * DEG) / (1 - SKIP);
+
+  // The path is the whole circle starting at this portrait's own position, so
+  // keyPoints (fractions of arc length) map straight onto angles: travel to the
+  // exit, skip the hidden remainder, then travel from the entry back to here.
+  const exit = (to - start) / 360;
+  const entry = (from + 360 - start) / 360;
+  const travel = sweep / 360;
+  const tExit = (exit / travel) * (1 - SKIP);
+
+  const [x0, y0] = at(r, start);
+  const [x1, y1] = at(r, start + 180);
+  const arc = `A${r2(r)} ${r2(r)} 0 0 1`;
+
+  return {
+    src,
+    dur: r2(dur),
+    path: `M${r2(x0)} ${r2(y0)} ${arc} ${r2(x1)} ${r2(y1)} ${arc} ${r2(x0)} ${r2(y0)}`,
+    keyPoints: `0;${r4(exit)};${r4(entry)};1`,
+    keyTimes: `0;${r4(tExit)};${r4(tExit + SKIP)};1`,
+  };
+});
+---
+
+<div class="absolute left-0 top-[31px] w-full" aria-hidden="true">
+  <img src="/images/community-orbit-bg.png" alt="" class="block w-full" loading="lazy" />
+  <!-- Overlaid on the artwork at the same 392x429 scale, and clipped to it: a
+       portrait that runs off the card is simply outside the SVG viewport.
+       rotate="0" is the point of the exercise — each portrait keeps its
+       orientation and only its position follows the arc. -->
+  <svg
+    id="community-orbit"
+    class="absolute inset-0 size-full"
+    viewBox={`0 0 ${BOX.w} ${BOX.h}`}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    {
+      nodes.map((node) => (
+        <g>
+          <image href={node.src} x={-DISC_R} y={-DISC_R} width={DISC_R * 2} height={DISC_R * 2} />
+          <animateMotion
+            dur={`${node.dur}s`}
+            repeatCount="indefinite"
+            rotate="0"
+            calcMode="linear"
+            path={node.path}
+            keyPoints={node.keyPoints}
+            keyTimes={node.keyTimes}
+          />
+        </g>
+      ))
+    }
+  </svg>
+</div>
+
+<script>
+  // SMIL can't be switched off from CSS. Freezing the timeline at 0 leaves every
+  // portrait exactly where the design put it.
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const svg = document.getElementById('community-orbit') as SVGSVGElement | null;
+    svg?.pauseAnimations();
+  }
+</script>
