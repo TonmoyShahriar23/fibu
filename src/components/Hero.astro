@@ -31,10 +31,18 @@
 
 <!-- floating pixel planets (above the phone mockup, like in Figma) -->
 <div class="pointer-events-none absolute inset-x-0 top-0 z-20 hidden md:block" aria-hidden="true">
-  <img src="/images/planet-4.png" alt="" class="planet absolute top-[185px] h-16 w-[63px]" style="left: calc(50% - 491px);" />
-  <img src="/images/planet-3.png" alt="" class="planet absolute top-[241px] h-[60px] w-[57px]" style="left: calc(50% + 487px); animation-delay: -2s;" />
-  <img src="/images/planet-1.png" alt="" class="planet absolute top-[646px] size-20" style="left: calc(50% - 588px); animation-delay: -4s;" />
-  <img src="/images/planet-2.png" alt="" class="planet absolute top-[630px] size-[89px]" style="left: calc(50% + 532px); animation-delay: -1s;" />
+  <span class="planet absolute top-[185px] block h-16 w-[63px]" style="left: calc(50% - 491px);">
+    <img src="/images/planet-4.png" alt="" class="planet-spin block size-full" />
+  </span>
+  <span class="planet absolute top-[241px] block h-[60px] w-[57px]" style="left: calc(50% + 487px); animation-delay: -0.43s;">
+    <img src="/images/planet-3.png" alt="" class="planet-spin block size-full" style="animation-delay: -1.2s;" />
+  </span>
+  <span class="planet absolute top-[646px] block size-20" style="left: calc(50% - 588px); animation-delay: -0.86s;">
+    <img src="/images/planet-1.png" alt="" class="planet-spin block size-full" style="animation-delay: -2.4s;" />
+  </span>
+  <span class="planet absolute top-[630px] block size-[89px]" style="left: calc(50% + 532px); animation-delay: -0.21s;">
+    <img src="/images/planet-2.png" alt="" class="planet-spin block size-full" style="animation-delay: -3.6s;" />
+  </span>
 </div>
 
 <!-- hero content -->
@@ -120,22 +128,52 @@
       );
   }
 
+  /* Two rotations can't share one element (the later animation would win the
+     `rotate` property), so the wrapper does the bob + left-right rock and the
+     image inside does the continuous 360° spin. `translate`/`rotate` are used
+     as individual transform properties so the bob and the rock compose. */
   .planet {
-    animation: float 7s ease-in-out infinite;
+    animation:
+      float 1.5s ease-in-out infinite,
+      sway 2s ease-in-out infinite;
+  }
+
+  .planet-spin {
+    animation: spin-round 6s linear infinite;
   }
 
   @keyframes float {
     0%,
     100% {
-      transform: translateY(0);
+      translate: 0 0;
     }
     50% {
-      transform: translateY(-12px);
+      translate: 0 -12px;
+    }
+  }
+
+  @keyframes sway {
+    0%,
+    100% {
+      rotate: -14deg;
+    }
+    50% {
+      rotate: 14deg;
+    }
+  }
+
+  @keyframes spin-round {
+    from {
+      rotate: 0deg;
+    }
+    to {
+      rotate: 360deg;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .planet {
+    .planet,
+    .planet-spin {
       animation: none;
     }
   }
