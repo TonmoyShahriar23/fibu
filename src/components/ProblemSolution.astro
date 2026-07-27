@@ -19,6 +19,12 @@ const problems = [
 ];
 ---
 
+<!-- Runs during parse, before the cards below are painted, so the off-screen
+     start state only ever applies when JS is around to animate it back in. -->
+<script is:inline>
+  document.documentElement.classList.add('js-motion');
+</script>
+
 <section class="relative z-10 mx-auto w-full max-w-[1224px] px-4">
   <!-- ======================= problem ======================= -->
   <div class="mt-[120px] flex flex-col items-center gap-[52px]">
@@ -28,9 +34,11 @@ const problems = [
       Here's why your last coding app didn't work out
     </h2>
 
-    <div class="grid w-full grid-cols-1 gap-6 md:grid-cols-3">
+    <!-- The outer cards fly in from beyond the viewport edges while the middle
+         one flips into place; main's overflow-x-clip absorbs the travel. -->
+    <div id="problem-cards" class="grid w-full grid-cols-1 gap-6 md:grid-cols-3">
       <!-- card 1: textbook fox -->
-      <article class="card-shell">
+      <article class="card-shell reveal reveal-from-left">
         <div class="card-copy">
           <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">{problems[0].title}</h3>
           <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">{problems[0].body}</p>
@@ -43,7 +51,7 @@ const problems = [
       </article>
 
       <!-- card 2: frustrated fox + crossed-out doc -->
-      <article class="card-shell">
+      <article class="card-shell reveal reveal-flip">
         <div class="card-copy">
           <h3 class="font-pixel text-[40px] leading-none text-white light:text-[#1c1512]">{problems[1].title}</h3>
           <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">{problems[1].body}</p>
@@ -63,7 +71,7 @@ const problems = [
       </article>
 
       <!-- card 3: fox reading alone -->
-      <article class="card-shell">
+      <article class="card-shell reveal reveal-from-right">
         <div class="card-copy">
           <h3 class="font-pixel text-[40px] leading-none text-white light:text-[#1c1512]">{problems[2].title}</h3>
           <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">{problems[2].body}</p>
@@ -277,4 +285,74 @@ const problems = [
     gap: 8px;
     z-index: 1;
   }
+
+  /* Each card declares where it comes from; the shared .reveal rules below
+     handle the timing so all three land together. */
+  .reveal {
+    --reveal-to: none;
+  }
+
+  /* Start just past the viewport edge: half the screen plus half the card's own
+     width clears it at every breakpoint, single-column mobile included. */
+  .reveal-from-left {
+    --reveal-from: translateX(calc(-50vw - 50%));
+  }
+
+  .reveal-from-right {
+    --reveal-from: translateX(calc(50vw + 50%));
+  }
+
+  /* Middle card holds its position and swings in edge-on instead. Stopping at a
+     quarter turn keeps the front face forward the whole way — a half turn would
+     show the card's mirrored back. */
+  .reveal-flip {
+    --reveal-from: perspective(1200px) rotateY(90deg);
+    --reveal-to: perspective(1200px) rotateY(0deg);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js-motion) .reveal {
+      opacity: 0;
+      transform: var(--reveal-from);
+    }
+
+    /* Transition lives on the end state so the cards ease in once and never
+       animate back out. A long, gently-decelerating glide rather than a snap —
+       the whole travel from the screen edge should be readable. */
+    :global(html.js-motion) .reveal.is-revealed {
+      opacity: 1;
+      transform: var(--reveal-to);
+      transition:
+        transform 2.2s cubic-bezier(0.33, 0.02, 0.24, 1),
+        opacity 1.2s ease-out;
+    }
+  }
 </style>
+
+<script>
+  const grid = document.getElementById('problem-cards');
+  const cards = grid ? Array.from(grid.querySelectorAll<HTMLElement>('.reveal')) : [];
+
+  if (grid && cards.length) {
+    const reveal = () => cards.forEach((card) => card.classList.add('is-revealed'));
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      reveal();
+    } else {
+      // Starts just before the row scrolls into view so the slow glide has room
+      // to land, then stops watching — the cards stay put on the way back up.
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            observer.disconnect();
+            reveal();
+          });
+        },
+        { rootMargin: '0px 0px 10% 0px' }
+      );
+
+      observer.observe(grid);
+    }
+  }
+</script>
