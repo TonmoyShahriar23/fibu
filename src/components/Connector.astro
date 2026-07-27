@@ -1,0 +1,67 @@
+---
+// One connector wire plus the node that rides it. `d` is the Figma hourglass
+// curve (nodes 14196:26564/26565 et al.); it's only overridden for the straight
+// drop from the middle card. The node is drawn after the path so it sits on top,
+// and `reverse` flips travel direction for the wires that fan out of the hub.
+interface Props {
+  id: string;
+  d?: string;
+  viewBox?: string;
+  class?: string;
+  style?: string;
+  reverse?: boolean;
+  begin?: string;
+}
+
+const {
+  id,
+  d = 'M428.5 0C428.5 113.555 0.5 113.556 0.5 280',
+  viewBox = '0 0 429 280',
+  class: className = '',
+  style,
+  reverse = false,
+  begin = '0s',
+} = Astro.props;
+
+// One clock for every wire, so nodes on the converging side reach the hub in the
+// same frame.
+const DURATION = '3.2s';
+---
+
+<svg
+  class={`absolute top-0 h-full overflow-visible ${className}`}
+  style={style}
+  preserveAspectRatio="none"
+  viewBox={viewBox}
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path id={id} d={d} stroke="currentColor" />
+  <g class="flow-node">
+    <circle r="9" fill="#ff952d" opacity="0.16"></circle>
+    <circle r="4.5" fill="#ff952d" opacity="0.4"></circle>
+    <circle r="2.25" fill="#ffcb96"></circle>
+    <!-- keyPoints walks the path by arc length, so the node holds a steady speed
+         through the curve's tight bend instead of surging at the ends. -->
+    <animateMotion
+      dur={DURATION}
+      begin={begin}
+      repeatCount="indefinite"
+      calcMode="linear"
+      keyPoints={reverse ? '1;0' : '0;1'}
+      keyTimes="0;1"
+    >
+      <mpath href={`#${id}`} xlink:href={`#${id}`}></mpath>
+    </animateMotion>
+  </g>
+</svg>
+
+<style>
+  /* The wire is the content; the travelling node is pure decoration, so it just
+     isn't there when motion is unwelcome. */
+  @media (prefers-reduced-motion: reduce) {
+    .flow-node {
+      display: none;
+    }
+  }
+</style>
