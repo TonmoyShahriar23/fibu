@@ -4,7 +4,17 @@
 // 14196:27725 (Grandma card, x1020/y3971, 312x289). Section spans y3863-4738
 // (875px tall), 208px below the solution cards. Desktop uses the exact Figma
 // absolute offsets inside the 1224px content box; below xl it stacks.
+const fibu = {
+  name: 'Fibu',
+  body: "Fibu is the friend who dares you to hit 'start.' Every streak, every level-up, every badge that's fibu cheering the loudest.",
+};
 ---
+
+<!-- Runs during parse, before the card below is painted, so the untyped text
+     only ever goes invisible when JS is around to type it back in. -->
+<script is:inline>
+  document.documentElement.classList.add('js-motion');
+</script>
 
 <section class="relative z-10 mx-auto mt-[120px] w-full max-w-[1224px] px-4 xl:mt-[208px]">
   <div class="relative flex flex-col items-center gap-10 xl:block xl:h-[875px]">
@@ -21,12 +31,19 @@
       loading="lazy"
     />
 
-    <div class="guide-card guide-card-fibu xl:absolute xl:left-0 xl:top-[298px]">
-      <p class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white light:text-[#1c1512]">Fibu</p>
-      <p class="font-fira text-[18px] leading-[1.4] text-white light:text-[#3f3f3f]">
-        Fibu is the friend who dares you to hit 'start.' Every streak, every level-up, every badge
-        that's fibu cheering the loudest.
-      </p>
+    <!-- Fibu introduces himself on a loop: name, then body, one character at a
+         time, then it clears and starts over. Every character is in the DOM
+         from the start — the untyped tail is merely transparent — so the lines
+         wrap where they always would and the card never resizes as it types.
+         The spans have to stay on one line: a newline between them would
+         render as a stray space mid-sentence. -->
+    <div id="fibu-card" class="guide-card guide-card-fibu xl:absolute xl:left-0 xl:top-[298px]">
+      <p
+        class="type-line text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white light:text-[#1c1512]"
+      ><span class="type-typed"></span><span class="type-caret" aria-hidden="true"></span><span class="type-rest">{fibu.name}</span></p>
+      <p
+        class="type-line font-fira text-[18px] leading-[1.4] text-white light:text-[#3f3f3f]"
+      ><span class="type-typed"></span><span class="type-caret" aria-hidden="true"></span><span class="type-rest">{fibu.body}</span></p>
     </div>
 
     <div class="guide-card guide-card-grandma xl:absolute xl:right-0 xl:top-[108px]">
@@ -59,4 +76,106 @@
   .guide-card-grandma {
     background-image: var(--guide-grad-grandma);
   }
+
+  /* Zero net width — the 2px bar is cancelled by the negative margin — so the
+     caret can sit between the typed text and the tail without nudging a single
+     character or changing where the line wraps. */
+  .type-caret {
+    display: none;
+    width: 2px;
+    height: 1em;
+    margin-right: -2px;
+    vertical-align: -0.15em;
+    background: currentColor;
+  }
+
+  /* Square wave rather than a fade: a terminal caret snaps on and off. Its
+     rhythm is independent of the typing, so it blinks through the pauses. */
+  @keyframes type-caret-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Only ever hidden while JS is there to type it back in — with the script
+       gone (or motion turned down) the card renders in full, as written. */
+    :global(html.js-motion) .type-rest {
+      color: transparent;
+    }
+
+    /* Shown on whichever line is being typed, then handed to the next. */
+    .type-caret.is-active {
+      display: inline-block;
+      animation: type-caret-blink 1.06s step-end infinite;
+    }
+  }
 </style>
+
+<script>
+  // The Fibu card types itself out, line after line, once — then it stays put.
+  const card = document.getElementById('fibu-card');
+
+  const lines = Array.from(card?.querySelectorAll<HTMLElement>('.type-line') ?? [])
+    .map((line) => ({
+      typed: line.querySelector<HTMLElement>('.type-typed'),
+      caret: line.querySelector<HTMLElement>('.type-caret'),
+      rest: line.querySelector<HTMLElement>('.type-rest'),
+    }))
+    .filter((line) => line.typed && line.caret && line.rest)
+    .map((line) => ({
+      typed: line.typed!,
+      caret: line.caret!,
+      rest: line.rest!,
+      text: line.rest!.textContent ?? '',
+    }));
+
+  if (card && lines.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const CPS = 13; // characters a second — deliberate, one key at a time
+
+    // Driven off the clock rather than a per-frame step, so the pace holds on a
+    // 120Hz screen and on a tab dropping frames alike.
+    const type = (index: number) => {
+      const line = lines[index];
+      if (!line) return;
+
+      line.caret.classList.add('is-active');
+      const start = performance.now();
+
+      const step = (now: number) => {
+        const shown = Math.min(line.text.length, Math.round(((now - start) / 1000) * CPS));
+        line.typed.textContent = line.text.slice(0, shown);
+        line.rest.textContent = line.text.slice(shown);
+
+        if (shown < line.text.length) {
+          requestAnimationFrame(step);
+          return;
+        }
+
+        line.caret.classList.remove('is-active');
+        type(index + 1);
+      };
+
+      requestAnimationFrame(step);
+    };
+
+    // Starts the first pass once the card is properly on screen, so it isn't
+    // already several cycles deep by the time anyone scrolls to it.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          observer.disconnect();
+          type(0);
+        });
+      },
+      { threshold: 0.45 }
+    );
+
+    observer.observe(card);
+  }
+</script>
