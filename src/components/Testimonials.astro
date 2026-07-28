@@ -96,12 +96,20 @@ const rows = [
     {rows.map((row) => (
       <div class="marquee-row w-full overflow-hidden">
         <div
-          class:list={['marquee-track flex w-max', row.reverse && 'is-reverse']}
+          class:list={[
+            'marquee-track flex w-full flex-col gap-6 md:w-max md:flex-row md:gap-0',
+            row.reverse && 'is-reverse',
+          ]}
           style={`--marquee-duration: ${row.duration};`}
         >
           {[...row.items, ...row.items].map((t, i) => (
             <article
-              class="mr-6 flex w-[320px] shrink-0 flex-col gap-5 rounded-[24px] border border-[#2c2a2a] bg-[#070606] p-6 light:border-[#e8e1d7] light:bg-white light:shadow-[0_6px_24px_rgba(28,21,18,0.05)] lg:w-[392px]"
+              class:list={[
+                'w-full shrink-0 flex-col gap-5 rounded-[24px] border border-[#2c2a2a] bg-[#070606] p-6 light:border-[#e8e1d7] light:bg-white light:shadow-[0_6px_24px_rgba(28,21,18,0.05)] md:mr-6 md:w-[320px] lg:w-[392px]',
+                // the loop copies only exist to feed the marquee, so on phones —
+                // where nothing scrolls — they'd just be duplicate cards
+                i >= row.items.length ? 'hidden md:flex' : 'flex',
+              ]}
               aria-hidden={i >= row.items.length ? 'true' : 'false'}
             >
               <div class="flex items-center gap-4">
@@ -143,31 +151,38 @@ const rows = [
     }
   }
 
-  /* Soften the two ends so cards enter and leave instead of being cut off. */
-  .marquee-row {
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-  }
+  /* The whole marquee is a tablet-and-up treatment. Phones keep the cards as a
+     plain stacked list: sideways motion on a narrow screen only ever shows one
+     card at a time, and it fights with vertical page scrolling. Below 768px the
+     track is a normal flex column (see the md: utilities in the markup), so
+     everything here stays scoped to the horizontal layout. */
+  @media (min-width: 768px) {
+    /* Soften the two ends so cards enter and leave instead of being cut off. */
+    .marquee-row {
+      -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+      mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    }
 
-  /* Rows 1 and 3 travel left → right forever. The track holds two identical
-     copies of the row, so sliding it from -50% to 0 advances by exactly one copy
-     and restarts invisibly. Cards are spaced with margin-right rather than a flex
-     gap — a gap would sit between the two copies as well and throw the 50% off
-     by half a gap, which shows up as a jump every loop. */
-  .marquee-track {
-    animation: marquee-right var(--marquee-duration, 50s) linear infinite;
-    will-change: transform;
-  }
+    /* Rows 1 and 3 travel left → right forever. The track holds two identical
+       copies of the row, so sliding it from -50% to 0 advances by exactly one
+       copy and restarts invisibly. Cards are spaced with margin-right rather
+       than a flex gap — a gap would sit between the two copies as well and throw
+       the 50% off by half a gap, which shows up as a jump every loop. */
+    .marquee-track {
+      animation: marquee-right var(--marquee-duration, 50s) linear infinite;
+      will-change: transform;
+    }
 
-  /* Row 2 runs the same keyframes backwards: 0 → -50%, i.e. right → left. The
-     loop stays seamless because both ends of the travel are equivalent frames. */
-  .marquee-track.is-reverse {
-    animation-direction: reverse;
-  }
+    /* Row 2 runs the same keyframes backwards: 0 → -50%, i.e. right → left. The
+       loop stays seamless because both ends of the travel are equivalent frames. */
+    .marquee-track.is-reverse {
+      animation-direction: reverse;
+    }
 
-  /* Give people a way to stop and actually read a card. */
-  .marquee-row:hover .marquee-track {
-    animation-play-state: paused;
+    /* Give people a way to stop and actually read a card. */
+    .marquee-row:hover .marquee-track {
+      animation-play-state: paused;
+    }
   }
 
   @keyframes marquee-right {
