@@ -68,6 +68,16 @@ const testimonials = [
       'I just signed up for the @taskmaster beta and I’m blown away by the sleek UI/UX. This is the kind of experience that task management apps have needed for a long time!',
   },
 ];
+
+// The three former grid columns become three marquee rows, alternating direction
+// so the middle row counter-scrolls against the other two. Each row is rendered
+// twice back-to-back so translating the track by exactly -50%→0 loops seamlessly;
+// slightly different durations keep the rows from marching in lockstep.
+const rows = [
+  { items: testimonials.slice(0, 3), duration: '46s', reverse: false },
+  { items: testimonials.slice(3, 6), duration: '58s', reverse: true },
+  { items: testimonials.slice(6, 9), duration: '52s', reverse: false },
+];
 ---
 
 <section class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[1224px] flex-col items-center gap-12 px-4">
@@ -82,45 +92,97 @@ const testimonials = [
     </p>
   </div>
 
-  <div class="fade-grid grid w-full grid-cols-1 items-start gap-6 md:grid-cols-2 xl:grid-cols-3">
-    {testimonials.map((t) => (
-      <article
-        class="flex flex-col gap-5 rounded-[24px] border border-[#2c2a2a] bg-[#070606] p-6 light:border-[#e8e1d7] light:bg-white light:shadow-[0_6px_24px_rgba(28,21,18,0.05)]"
-      >
-        <div class="flex items-center gap-4">
-          <img
-            src={t.avatar}
-            alt={`Portrait of ${t.name}`}
-            class="size-12 shrink-0 rounded-[8px] object-cover"
-            width="48"
-            height="48"
-            loading="lazy"
-          />
-          <div class="flex flex-col justify-center gap-2">
-            <p class="text-[20px] font-semibold leading-[1.1] tracking-[-0.5px] text-white light:text-[#1c1512]">
-              {t.name}
-            </p>
-            <p class="text-[14px] leading-[1.5] text-[#9e9e9e] light:text-[#737373]">{t.role}</p>
-          </div>
+  <div class="fade-grid flex w-full flex-col gap-6">
+    {rows.map((row) => (
+      <div class="marquee-row w-full overflow-hidden">
+        <div
+          class:list={['marquee-track flex w-max', row.reverse && 'is-reverse']}
+          style={`--marquee-duration: ${row.duration};`}
+        >
+          {[...row.items, ...row.items].map((t, i) => (
+            <article
+              class="mr-6 flex w-[320px] shrink-0 flex-col gap-5 rounded-[24px] border border-[#2c2a2a] bg-[#070606] p-6 light:border-[#e8e1d7] light:bg-white light:shadow-[0_6px_24px_rgba(28,21,18,0.05)] lg:w-[392px]"
+              aria-hidden={i >= row.items.length ? 'true' : 'false'}
+            >
+              <div class="flex items-center gap-4">
+                <img
+                  src={t.avatar}
+                  alt={`Portrait of ${t.name}`}
+                  class="size-12 shrink-0 rounded-[8px] object-cover"
+                  width="48"
+                  height="48"
+                  loading="lazy"
+                />
+                <div class="flex flex-col justify-center gap-2">
+                  <p class="text-[20px] font-semibold leading-[1.1] tracking-[-0.5px] text-white light:text-[#1c1512]">
+                    {t.name}
+                  </p>
+                  <p class="text-[14px] leading-[1.5] text-[#9e9e9e] light:text-[#737373]">{t.role}</p>
+                </div>
+              </div>
+              <div class="w-full border-t border-[#2c2a2a] light:border-[#e8e1d7]"></div>
+              <p class="font-geist text-[16px] leading-[1.7] tracking-[-0.3px] text-[#bebdbd] light:text-[#525252]">
+                {t.quote}
+              </p>
+            </article>
+          ))}
         </div>
-        <div class="w-full border-t border-[#2c2a2a] light:border-[#e8e1d7]"></div>
-        <p class="font-geist text-[16px] leading-[1.7] tracking-[-0.3px] text-[#bebdbd] light:text-[#525252]">
-          {t.quote}
-        </p>
-      </article>
+      </div>
     ))}
   </div>
 </section>
 
 <style>
-  /* The peek-fade is calibrated for the 3-column (3-row) grid at xl. Below xl the
-     grid grows to 5 rows (md) or 9 rows (mobile), where a fade from 51.7% would
-     render half the testimonials invisible — so only apply it once 3 columns
-     are in play. */
+  /* The peek-fade is calibrated for the full-width xl layout. On narrower screens
+     the cards shrink and quotes wrap to more lines, so the rows get tall enough
+     that a fade starting at 51.7% would swallow most of the last two rows. */
   @media (min-width: 1280px) {
     .fade-grid {
       -webkit-mask-image: linear-gradient(to bottom, #000 51.7%, transparent 100%);
       mask-image: linear-gradient(to bottom, #000 51.7%, transparent 100%);
+    }
+  }
+
+  /* Soften the two ends so cards enter and leave instead of being cut off. */
+  .marquee-row {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+
+  /* Rows 1 and 3 travel left → right forever. The track holds two identical
+     copies of the row, so sliding it from -50% to 0 advances by exactly one copy
+     and restarts invisibly. Cards are spaced with margin-right rather than a flex
+     gap — a gap would sit between the two copies as well and throw the 50% off
+     by half a gap, which shows up as a jump every loop. */
+  .marquee-track {
+    animation: marquee-right var(--marquee-duration, 50s) linear infinite;
+    will-change: transform;
+  }
+
+  /* Row 2 runs the same keyframes backwards: 0 → -50%, i.e. right → left. The
+     loop stays seamless because both ends of the travel are equivalent frames. */
+  .marquee-track.is-reverse {
+    animation-direction: reverse;
+  }
+
+  /* Give people a way to stop and actually read a card. */
+  .marquee-row:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee-right {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+      transform: none;
     }
   }
 </style>
