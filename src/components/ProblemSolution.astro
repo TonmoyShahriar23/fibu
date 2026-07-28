@@ -194,7 +194,7 @@ const problems = [
       </article>
 
       <!-- card B: streak calendars + flame -->
-      <article class="card-shell solution-card">
+      <article id="streak-card" class="card-shell solution-card">
         <div class="card-copy">
           <h3 class="font-pixel text-[40px] leading-[0.95] text-white light:text-[#1c1512]">Progress you can actually see</h3>
           <p class="text-[16px] leading-[1.5] text-[#dedddd] light:text-[#525252]">
@@ -204,7 +204,7 @@ const problems = [
         <img
           src="/images/streak-glow.svg"
           alt=""
-          class="absolute left-[calc(50%-7px)] top-[51.52%] w-[211px] -translate-x-1/2 mix-blend-lighten"
+          class="streak-glow absolute left-[calc(50%-7px)] top-[51.52%] w-[211px] -translate-x-1/2 mix-blend-lighten"
           style="height: 59.5%;"
           loading="lazy"
         />
@@ -220,12 +220,36 @@ const problems = [
           class="absolute left-1/2 top-[143px] hidden w-[384px] max-w-none -translate-x-1/2 light:block"
           loading="lazy"
         />
+
+        <!-- The three earned days. The calendar art behind carries the unlit
+             glyph for all seven, so these only ever have to light up on top of
+             it — same 384px box and centring as that art, so they land on their
+             own cells at every card width. Lit is the default state: the
+             stagger below only holds them back when JS is there to release
+             them. -->
+        <div
+          class="pointer-events-none absolute left-1/2 top-[258px] h-6 w-[384px] max-w-none -translate-x-1/2"
+          aria-hidden="true"
+        >
+          {
+            [39, 87, 135].map((left, day) => (
+              <img
+                src="/images/streak-flame-day.svg"
+                alt=""
+                class="streak-day absolute top-0 h-6 w-[18px]"
+                style={`left: ${left}px; --day: ${day};`}
+                loading="lazy"
+              />
+            ))
+          }
+        </div>
+
         <div
           class="absolute left-[calc(50%-7px)] top-[335px] h-[166px] w-32 -translate-x-1/2 overflow-clip drop-shadow-[0px_4px_2px_rgba(0,0,0,0.25)]"
         >
           <span class="absolute" style="inset: 10.84% 12.5% 12.05% 12.5%;">
             <span class="absolute" style="inset: -15.63% -20.83%;">
-              <img src="/images/streak-flame-big.svg" alt="" class="block size-full" loading="lazy" />
+              <img src="/images/streak-flame-big.svg" alt="" class="streak-flame block size-full" loading="lazy" />
             </span>
           </span>
         </div>
@@ -294,7 +318,89 @@ const problems = [
     --reveal-to: perspective(1200px) rotateY(0deg);
   }
 
+  /* Both flame animations pivot on the wick rather than the centre, so the base
+     stays planted and only the body moves. */
+  .streak-flame,
+  .streak-day {
+    transform-origin: 50% 100%;
+  }
+
+  /* Gap between one day catching and the next. */
+  .streak-day {
+    --step: 260ms;
+  }
+
+  /* A slow breath with quicker flickers layered over it. The two loops are
+     deliberately coprime lengths, so the flame and the glow behind it drift in
+     and out of phase instead of pulsing in lockstep. */
+  @keyframes flame-flicker {
+    0%,
+    100% {
+      transform: scale(1, 1);
+      opacity: 1;
+    }
+    18% {
+      transform: scale(0.985, 1.035);
+      opacity: 0.94;
+    }
+    34% {
+      transform: scale(1.02, 0.975);
+      opacity: 1;
+    }
+    52% {
+      transform: scale(0.99, 1.045);
+      opacity: 0.9;
+    }
+    68% {
+      transform: scale(1.015, 0.99);
+      opacity: 0.98;
+    }
+    84% {
+      transform: scale(0.995, 1.02);
+      opacity: 0.95;
+    }
+  }
+
+  @keyframes flame-glow {
+    0%,
+    100% {
+      opacity: 0.88;
+    }
+    40% {
+      opacity: 1;
+    }
+    70% {
+      opacity: 0.82;
+    }
+  }
+
   @media (prefers-reduced-motion: no-preference) {
+    .streak-flame {
+      animation: flame-flicker 3.2s ease-in-out infinite;
+    }
+
+    .streak-glow {
+      animation: flame-glow 4.1s ease-in-out infinite;
+    }
+
+    /* Each day starts snuffed out and small. The delay ladder is pure CSS —
+       the script only has to say "go" once. */
+    :global(html.js-motion) .streak-day {
+      opacity: 0;
+      transform: scale(0.4) translateY(6px);
+    }
+
+    :global(html.js-motion) .streak-day.is-lit {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      /* Overshoot on the way in, so each day lands with a small flare rather
+         than merely fading up. */
+      transition:
+        transform 520ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        opacity 300ms ease-out;
+      transition-delay: calc(var(--day) * var(--step));
+    }
+
     :global(html.js-motion) .reveal {
       opacity: 0;
       transform: var(--reveal-from);
@@ -337,6 +443,34 @@ const problems = [
       );
 
       observer.observe(grid);
+    }
+  }
+
+  // Streak days catch one after another, once, the first time the card is
+  // properly on screen — the stagger itself is the CSS delay ladder.
+  const streakCard = document.getElementById('streak-card');
+  const days = streakCard ? Array.from(streakCard.querySelectorAll<HTMLElement>('.streak-day')) : [];
+
+  if (streakCard && days.length) {
+    const light = () => days.forEach((day) => day.classList.add('is-lit'));
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      light();
+    } else {
+      // Waits for a good part of the card rather than its first pixel, so the
+      // row isn't already finished by the time it's worth looking at.
+      const streakObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            streakObserver.disconnect();
+            light();
+          });
+        },
+        { threshold: 0.45 }
+      );
+
+      streakObserver.observe(streakCard);
     }
   }
 </script>
