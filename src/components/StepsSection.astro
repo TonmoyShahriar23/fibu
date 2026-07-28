@@ -117,8 +117,8 @@ const steps = [
           aria-hidden="true"
         />
 
-        {steps.map((step) => (
-          <div class="flex items-center gap-6">
+        {steps.map((step, i) => (
+          <div class:list={['step-item flex items-center gap-6', i === 0 && 'is-active']}>
             <div class="step-icon-tile relative shrink-0 rounded-[16px] border border-[#2e1200] p-3 light:border-[rgba(255,149,45,0.35)]">
               <span class="relative block size-8">
                 <span class="absolute" style={`inset: ${step.inset};`}>
@@ -148,6 +148,18 @@ const steps = [
   :global(.light) .step-icon-tile {
     background-color: #fdf4ea;
     box-shadow: none;
+  }
+
+  /* Steps mirror the carousel: the step matching the visible phone screen stays
+     lit while the other two recede. Dimming the whole row keeps this working in
+     both themes without a second set of color overrides. */
+  .step-item {
+    opacity: 0.45;
+    transition: opacity 0.5s ease;
+  }
+
+  .step-item.is-active {
+    opacity: 1;
   }
 
   /* Carousel: stacked screens cross-fade. The outgoing screen (.is-prev) stays
@@ -195,7 +207,8 @@ const steps = [
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .phone-screen {
+    .phone-screen,
+    .step-item {
       transition: none;
     }
   }
@@ -206,8 +219,12 @@ const steps = [
   if (carousel) {
     const slides = Array.from(carousel.querySelectorAll<HTMLElement>('.phone-screen'));
     const dots = Array.from(carousel.querySelectorAll<HTMLButtonElement>('.phone-dot'));
+    // steps live in the sibling column, so they're scoped to the section
+    const steps = Array.from(
+      carousel.closest('section')?.querySelectorAll<HTMLElement>('.step-item') ?? []
+    );
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const INTERVAL = 3500;
+    const INTERVAL = 2000;
     let index = 0;
     let timer: number | undefined;
     let inView = false;
@@ -228,6 +245,8 @@ const steps = [
         d.classList.toggle('is-active', i === index);
         d.setAttribute('aria-selected', i === index ? 'true' : 'false');
       });
+
+      steps.forEach((s, i) => s.classList.toggle('is-active', i === index));
     };
 
     const stop = () => {
