@@ -31,16 +31,29 @@ const plans = [
 ];
 ---
 
+<!-- Runs during parse, before the cards below are painted, so the off-screen
+     start state only ever applies when JS is around to animate it back in. -->
+<script is:inline>
+  document.documentElement.classList.add('js-motion');
+</script>
+
 <section class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[1224px] flex-col items-center gap-10 px-4">
   <h2 class="heading-gradient font-pixel w-full text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]">
     Ready to go further?
   </h2>
 
-  <div class="flex w-full max-w-[816px] flex-col items-stretch gap-2 rounded-[28px] bg-[#171616] p-2 light:border light:border-[#ececec] light:bg-[#f0f0f0] md:w-auto md:flex-row">
-    {plans.map((plan) => (
+  <!-- Monthly flies in from beyond the left edge and Yearly from the right, into
+       the pill that already holds their slot; main's overflow-x-clip absorbs the
+       travel so neither one widens the page on the way in. -->
+  <div
+    id="pricing-plans"
+    class="flex w-full max-w-[816px] flex-col items-stretch gap-2 rounded-[28px] bg-[#171616] p-2 light:border light:border-[#ececec] light:bg-[#f0f0f0] md:w-auto md:flex-row"
+  >
+    {plans.map((plan, i) => (
       <div
         class:list={[
-          'flex w-full max-w-[392px] items-center rounded-[24px] px-6 py-8 md:w-[392px]',
+          'reveal flex w-full max-w-[392px] items-center rounded-[24px] px-6 py-8 md:w-[392px]',
+          i === 0 ? 'reveal-from-left' : 'reveal-from-right',
           plan.dark
             ? 'border-2 border-[#2c2a2a] bg-[#0a0400] text-white light:border-[#e9e9e9] light:bg-white light:text-[#1c1512]'
             : 'bg-white text-[#0a0400] light:border-2 light:border-[#2c2a2a] light:bg-[#0a0400] light:text-white',
@@ -201,5 +214,72 @@ const plans = [
       animation: none;
     }
   }
+
+  /* Start just past the viewport edge: half the screen plus half the card's own
+     width clears it at every breakpoint, single-column mobile included. */
+  .reveal-from-left {
+    --reveal-from: translateX(calc(-50vw - 50%));
+  }
+
+  .reveal-from-right {
+    --reveal-from: translateX(calc(50vw + 50%));
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js-motion) .reveal {
+      opacity: 0;
+      transform: var(--reveal-from);
+    }
+
+    /* Transition lives on the end state so the cards ease in once and never
+       animate back out. Both sides share the timing, so they meet in the
+       middle rather than one arriving ahead of the other. */
+    :global(html.js-motion) .reveal.is-revealed {
+      opacity: 1;
+      transform: none;
+      transition:
+        transform 1.4s cubic-bezier(0.33, 0.02, 0.24, 1),
+        opacity 0.8s ease-out;
+    }
+  }
 </style>
+
+<script>
+  const plans = document.getElementById('pricing-plans');
+  const cards = plans ? Array.from(plans.querySelectorAll<HTMLElement>('.reveal')) : [];
+
+  if (plans && cards.length) {
+    const land = () => cards.forEach((card) => card.classList.add('is-revealed'));
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      land();
+    } else {
+      // Two frames of daylight between the off-screen start state and the class
+      // that transitions out of it. Without this, a reload that restores the
+      // scroll position onto this section hands the observer an already-visible
+      // target, its first callback lands in the same style pass as the initial
+      // paint, and the browser has no earlier value to transition from — the
+      // cards just appear. One rAF is not always enough; two guarantees the
+      // start state has been painted.
+      const reveal = () => requestAnimationFrame(() => requestAnimationFrame(land));
+
+      // Waits until a slice of the pill is genuinely on screen. Triggering
+      // early (while it is still below the fold) burns the glide on scenery
+      // nobody can see, so a quick scroll past would show only the tail of it.
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            observer.disconnect();
+            reveal();
+          });
+        },
+        { threshold: 0.15 }
+      );
+
+      observer.observe(plans);
+    }
+  }
+</script>
+
 
