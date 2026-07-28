@@ -142,7 +142,7 @@ const plans = [
           <a
             href="#start"
             class:list={[
-              'block w-full rounded-[16px] pb-1',
+              'cta-3d block w-full rounded-[16px] pb-1',
               plan.dark ? 'bg-[#bebdbd] light:bg-[#d4d4d4]' : 'bg-[#e77a00]',
             ]}
           >
@@ -160,4 +160,46 @@ const plans = [
     ))}
   </div>
 </section>
+
+<style>
+  /* Both plan CTAs rock gently around their own midpoint: the center stays put
+     while the two ends rise and fall in opposition. A rotation is what keeps the
+     center genuinely fixed — the origin is the pivot, so only the sides travel,
+     and the further from center the more they move.
+
+     The tilt is deliberately tiny (0.9deg). On the 392px card that works out to
+     roughly 3px of rise at each end, which is the same order as the button's own
+     3D base — enough to read as motion, small enough not to look broken. The
+     animation lives on the anchor rather than the face so the button and the
+     base it sits on tilt as one piece. */
+  .cta-3d {
+    transform-origin: center;
+    animation: cta-wave 1.1s ease-in-out infinite;
+  }
+
+  /* Hand the button back to the pointer once it's actually being used, so the
+     press reads as a press rather than landing mid-tilt. The face's
+     active:translate-y is a separate element and property, so it never fights
+     this rotation. */
+  .cta-3d:hover,
+  .cta-3d:focus-visible {
+    animation-play-state: paused;
+  }
+
+  @keyframes cta-wave {
+    0%,
+    100% {
+      transform: rotate(-0.9deg);
+    }
+    50% {
+      transform: rotate(0.9deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cta-3d {
+      animation: none;
+    }
+  }
+</style>
 
