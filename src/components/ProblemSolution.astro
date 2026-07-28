@@ -179,7 +179,19 @@ const problems = [
               >
                 <div class="flex items-center gap-4">
                   <p class="font-dm-mono text-[16px] leading-[22px] text-[#f4f4f4] light:text-[#1c1512]">2</p>
-                  <span class="h-4 w-px bg-[#f4f4f4] light:bg-[#1c1512]"></span>
+                  <!-- Typed text and caret sit in their own box so the caret
+                       tracks the last character. The line renders empty, so
+                       with the text stripped out the caret lands exactly where
+                       the design's static one was. -->
+                  <div class="flex items-center">
+                    <p
+                      id="code-line"
+                      class="font-dm-mono whitespace-nowrap text-[16px] leading-[22px] text-[#dedddd] light:text-[#1c1512]"
+                      data-code="return a * b;"
+                    >
+                    </p>
+                    <span class="code-caret h-4 w-px bg-[#f4f4f4] light:bg-[#1c1512]"></span>
+                  </div>
                 </div>
                 <img src="/images/icon-eraser.svg" alt="" class="size-6 light:invert" loading="lazy" />
               </div>
@@ -361,6 +373,18 @@ const problems = [
     }
   }
 
+  /* Square wave rather than a fade — a code caret snaps on and off. Its rhythm
+     is independent of the typing, so it keeps blinking through the pause. */
+  @keyframes caret-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
   @keyframes flame-glow {
     0%,
     100% {
@@ -375,6 +399,10 @@ const problems = [
   }
 
   @media (prefers-reduced-motion: no-preference) {
+    .code-caret {
+      animation: caret-blink 1.06s step-end infinite;
+    }
+
     .streak-flame {
       animation: flame-flicker 3.2s ease-in-out infinite;
     }
@@ -443,6 +471,42 @@ const problems = [
       );
 
       observer.observe(grid);
+    }
+  }
+
+  // Editor's active line types itself out, holds, clears, and starts over. The
+  // text lives in data-code so the line still ships empty, exactly as designed,
+  // and nothing flashes before the script runs.
+  const codeLine = document.getElementById('code-line');
+  const code = codeLine?.dataset.code ?? '';
+
+  if (codeLine && code) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // No typing, but still show what would have been typed.
+      codeLine.textContent = code;
+    } else {
+      const PER_CHAR = 70;
+      const HOLD = 1800; // finished line stays up long enough to read
+      const BLANK = 500; // beat on the empty line before the next pass
+
+      let typed = 0;
+      const tick = () => {
+        codeLine.textContent = code.slice(0, typed);
+
+        if (typed < code.length) {
+          typed += 1;
+          setTimeout(tick, PER_CHAR);
+          return;
+        }
+
+        setTimeout(() => {
+          typed = 0;
+          codeLine.textContent = '';
+          setTimeout(tick, BLANK);
+        }, HOLD);
+      };
+
+      tick();
     }
   }
 
