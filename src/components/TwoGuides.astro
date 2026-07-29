@@ -10,12 +10,8 @@ const fibu = {
 };
 ---
 
-<!-- Runs during parse, before the card below is painted, so the untyped text
-     only ever goes invisible when JS is around to type it back in. -->
-<script is:inline>
-  document.documentElement.classList.add('js-motion');
-</script>
-
+<!-- `js-motion` (the flag that hides the untyped tail below) is set in Layout's
+     head script, ahead of any of this being painted. -->
 <section
   id="guides"
   aria-labelledby="guides-heading"

@@ -2,6 +2,12 @@
 // Figma node 14196:20373 ("Mask group"): the hand-held iPhone photo cropped to a
 // 1055.34x964 frame whose alpha mask fades the image out toward the bottom
 // (linear gradient, opaque until ~81.5%, transparent by ~97%).
+//
+// This photo is by far the heaviest thing on the page and it straddles the fold,
+// so the preload scanner would otherwise start it at the same priority as the
+// hero backdrop above it. `fetchpriority="low"` keeps it eager — it is still
+// requested on first pass, nothing pops in — but lets the LCP backdrop, the CSS
+// and the fonts have the connection first.
 ---
 
 <section class="relative z-10 mx-auto mt-[5px] w-full max-w-[1055px]">
@@ -14,6 +20,7 @@
       width="4096"
       height="2731"
       decoding="async"
+      fetchpriority="low"
     />
   </div>
 </section>

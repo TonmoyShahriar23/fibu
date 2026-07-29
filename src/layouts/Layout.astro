@@ -66,7 +66,11 @@ const siteSchema = {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- Apply persisted theme before first paint to avoid a flash. Defaults to dark. -->
+    <!-- Apply persisted theme before first paint to avoid a flash. Defaults to dark.
+         `js-motion` is set here too: the reveal/typing sections only hide their
+         start state when JS is around to animate it back in, and flagging that
+         once in the head beats three separate parser-blocking scripts in the
+         body — it lands earlier and interrupts the parse one time instead of four. -->
     <script is:inline>
       (function () {
         var t;
@@ -74,7 +78,7 @@ const siteSchema = {
           t = localStorage.getItem('theme');
         } catch (e) {}
         if (t !== 'light' && t !== 'dark') t = 'dark';
-        document.documentElement.classList.add(t);
+        document.documentElement.classList.add(t, 'js-motion');
       })();
     </script>
 
@@ -107,14 +111,40 @@ const siteSchema = {
     <link rel="apple-touch-icon" href="/images/app-icon.png" />
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
+    <!-- Google serves the CSS from fonts.googleapis.com and the woff2 files from
+         fonts.gstatic.com; Fontshare splits the same way across api. and cdn.
+         Warming all four saves a DNS + TLS handshake apiece on the font path. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
     <link rel="preload" href="/fonts/jersey10-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    <!-- Both sheets already ask for `display=swap`, so text was always going to
+         paint in the fallback face first and swap when the webfont lands. Loading
+         them as `print` and promoting them once they arrive keeps that outcome
+         exactly, but takes two third-party CDNs off the render-blocking path —
+         first paint no longer waits on Google *and* Fontshare answering. The
+         <noscript> copies keep the fonts for anyone without JS. -->
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Geist:wght@400;500&family=DM+Mono&family=Fira+Code&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
-    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700&display=swap" rel="stylesheet" />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=satoshi@700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Geist:wght@400;500&family=DM+Mono&family=Fira+Code&display=swap"
+        rel="stylesheet"
+      />
+      <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700&display=swap" rel="stylesheet" />
+    </noscript>
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
   </head>

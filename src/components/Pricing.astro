@@ -31,12 +31,8 @@ const plans = [
 ];
 ---
 
-<!-- Runs during parse, before the cards below are painted, so the off-screen
-     start state only ever applies when JS is around to animate it back in. -->
-<script is:inline>
-  document.documentElement.classList.add('js-motion');
-</script>
-
+<!-- `js-motion` (the flag that gates the off-screen start state below) is set in
+     Layout's head script, ahead of any of this being painted. -->
 <section
   id="premium"
   aria-labelledby="pricing-heading"

@@ -22,12 +22,8 @@ const problems = [
 ];
 ---
 
-<!-- Runs during parse, before the cards below are painted, so the off-screen
-     start state only ever applies when JS is around to animate it back in. -->
-<script is:inline>
-  document.documentElement.classList.add('js-motion');
-</script>
-
+<!-- `js-motion` (the flag that gates the off-screen start state below) is set in
+     Layout's head script, ahead of any of this being painted. -->
 <section class="relative z-10 mx-auto w-full max-w-[1224px] px-4">
   <!-- ======================= problem ======================= -->
   <div class="mt-[120px] flex flex-col items-center gap-[52px]">

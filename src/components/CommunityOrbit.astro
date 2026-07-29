@@ -86,6 +86,12 @@ const nodes = portraits.map(({ src, x, y }) => {
     loading="lazy"
     decoding="async"
   />
+  <!-- Without JS the portraits below never get their href, so fall back to the
+       original single-file export — same 392x429 artwork with the ten faces
+       still baked in, i.e. the design's own first frame, minus the orbiting. -->
+  <noscript>
+    <img src="/images/community-orbit.png" alt="" class="absolute inset-0 block size-full" width="392" height="429" />
+  </noscript>
   <!-- Overlaid on the artwork at the same 392x429 scale, and clipped to it: a
        portrait that runs off the card is simply outside the SVG viewport.
        rotate="0" is the point of the exercise — each portrait keeps its
@@ -100,7 +106,13 @@ const nodes = portraits.map(({ src, x, y }) => {
     {
       nodes.map((node) => (
         <g>
-          <image href={node.src} x={-DISC_R} y={-DISC_R} width={DISC_R * 2} height={DISC_R * 2} />
+          {/* SVG <image> has no `loading` attribute, so shipping ten hrefs here
+              means ~300KB of portraits fetched during the initial page load for
+              a card that sits several screens down — bandwidth the hero images
+              need. The src is parked in data-src and swapped in by the script
+              below as the card comes up; the <noscript> above covers the case
+              where it never runs. */}
+          <image data-src={node.src} x={-DISC_R} y={-DISC_R} width={DISC_R * 2} height={DISC_R * 2} />
           <animateMotion
             dur={`${node.dur}s`}
             repeatCount="indefinite"
@@ -117,10 +129,43 @@ const nodes = portraits.map(({ src, x, y }) => {
 </div>
 
 <script>
+  const svg = document.getElementById('community-orbit') as SVGSVGElement | null;
+
   // SMIL can't be switched off from CSS. Freezing the timeline at 0 leaves every
   // portrait exactly where the design put it.
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const svg = document.getElementById('community-orbit') as SVGSVGElement | null;
     svg?.pauseAnimations();
+  }
+
+  // Hand the portraits their hrefs only once the card is on its way up. The
+  // margin is a full viewport of warning, so at any normal scrolling speed they
+  // are decoded and in place well before the card is actually looked at — the
+  // motion runs off the SMIL timeline either way, so nothing has to be
+  // restarted when they arrive.
+  if (svg) {
+    const portraits = Array.from(svg.querySelectorAll<SVGImageElement>('image[data-src]'));
+
+    const load = () =>
+      portraits.forEach((portrait) => {
+        const src = portrait.dataset.src;
+        if (!src) return;
+        portrait.setAttribute('href', src);
+        delete portrait.dataset.src;
+      });
+
+    if (portraits.length) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            observer.disconnect();
+            load();
+          });
+        },
+        { rootMargin: '100% 0px' }
+      );
+
+      observer.observe(svg);
+    }
   }
 </script>
