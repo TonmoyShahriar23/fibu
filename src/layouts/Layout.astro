@@ -2,10 +2,63 @@
 import '../styles/global.css';
 
 interface Props {
-  title: string;
+  title?: string;
+  description?: string;
+  /** Social preview image — site-root-relative path or absolute URL. */
+  image?: string;
+  /** Overrides the canonical URL that is otherwise derived from the current path. */
+  canonical?: string;
+  /** Keeps a page out of the index (used by 404 and any future utility pages). */
+  noindex?: boolean;
 }
 
-const { title } = Astro.props;
+const SITE_NAME = 'Fibu';
+const DEFAULT_TITLE = 'Fibu — Learn to Code, 15 Minutes at a Time';
+const DEFAULT_DESCRIPTION =
+  'Fibu turns coding into a daily habit you actually keep: 10–15 minute missions in Python, JavaScript and web development, with streaks, XP and 2.64M+ learners. Free to start on iOS and Android.';
+
+// Reuses an existing illustration rather than shipping a new asset. A dedicated
+// 1200x630 image would crop better in social previews — worth adding later.
+const DEFAULT_IMAGE = '/images/guides-illustration.png';
+
+const {
+  title = DEFAULT_TITLE,
+  description = DEFAULT_DESCRIPTION,
+  image = DEFAULT_IMAGE,
+  canonical,
+  noindex = false,
+} = Astro.props;
+
+// `site` is set in astro.config.mjs. The fallbacks keep this layout usable even
+// if it is ever unset, rather than throwing at build time.
+const site = Astro.site;
+const canonicalUrl = canonical ?? (site ? new URL(Astro.url.pathname, site).href : Astro.url.pathname);
+const socialImage = site ? new URL(image, site).href : image;
+
+// Site-wide structured data. Per-page entities (the app itself, the FAQ) are
+// emitted by the components that own that content, so there is one source of truth.
+const siteSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${site?.origin ?? ''}/#organization`,
+      name: SITE_NAME,
+      url: site?.origin ?? canonicalUrl,
+      logo: site ? new URL('/images/app-icon.png', site).href : '/images/app-icon.png',
+      description: DEFAULT_DESCRIPTION,
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${site?.origin ?? ''}/#website`,
+      name: SITE_NAME,
+      url: site?.origin ?? canonicalUrl,
+      description: DEFAULT_DESCRIPTION,
+      inLanguage: 'en',
+      publisher: { '@id': `${site?.origin ?? ''}/#organization` },
+    },
+  ],
+};
 ---
 
 <!doctype html>
@@ -24,8 +77,36 @@ const { title } = Astro.props;
         document.documentElement.classList.add(t);
       })();
     </script>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {/* A canonical on a noindex page only sends mixed signals, so it is omitted there. */}
+    {!noindex && <link rel="canonical" href={canonicalUrl} />}
+    <meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
     <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#000000" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:alt" content="Fibu the fox and Grandma, the two guides inside the Fibu learn-to-code app" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/images/app-icon.png" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="/fonts/jersey10-latin.woff2" as="font" type="font/woff2" crossorigin />
@@ -34,7 +115,8 @@ const { title } = Astro.props;
       rel="stylesheet"
     />
     <link href="https://api.fontshare.com/v2/css?f[]=satoshi@700&display=swap" rel="stylesheet" />
-    <title>{title}</title>
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(siteSchema)} />
   </head>
   <body>
     <slot />

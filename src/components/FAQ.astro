@@ -37,10 +37,27 @@ const faqs = [
     placeholder: true,
   },
 ];
+
+// FAQPage structured data, built from the same array the accordion renders, so
+// the markup and what search engines read can never drift apart.
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((faq) => ({
+    '@type': 'Question',
+    name: faq.question,
+    acceptedAnswer: { '@type': 'Answer', text: faq.answer },
+  })),
+};
 ---
 
-<section class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[600px] flex-col gap-12 px-4">
+<section
+  id="faq"
+  aria-labelledby="faq-heading"
+  class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[600px] flex-col gap-12 px-4"
+>
   <h2
+    id="faq-heading"
     class="heading-gradient font-pixel w-full text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
   >
     Have questions?<br />we have answers
@@ -50,21 +67,23 @@ const faqs = [
     {faqs.map((faq, i) => (
       <>
         <div class="faq-item rounded-[16px] p-4" data-open={i === 0 ? 'true' : 'false'}>
-          <button
-            type="button"
-            class="faq-toggle flex w-full items-center justify-between gap-6 text-left"
-            aria-expanded={i === 0 ? 'true' : 'false'}
-            aria-controls={`faq-answer-${i}`}
-          >
-            <span class="font-geist text-[20px] font-medium leading-[1.5] tracking-[-0.2px] text-white light:text-[#1c1512]">
-              {faq.question}
-            </span>
-            <span class="faq-icon relative size-6 shrink-0">
-              <span class="absolute" style="inset: 8.33%;">
-                <img src="/images/faq-arrow-down.svg" alt="" class="block size-full light:invert" />
+          <h3>
+            <button
+              type="button"
+              class="faq-toggle flex w-full items-center justify-between gap-6 text-left"
+              aria-expanded={i === 0 ? 'true' : 'false'}
+              aria-controls={`faq-answer-${i}`}
+            >
+              <span class="font-geist text-[20px] font-medium leading-[1.5] tracking-[-0.2px] text-white light:text-[#1c1512]">
+                {faq.question}
               </span>
-            </span>
-          </button>
+              <span class="faq-icon relative size-6 shrink-0">
+                <span class="absolute" style="inset: 8.33%;">
+                  <img src="/images/faq-arrow-down.svg" alt="" class="block size-full light:invert" />
+                </span>
+              </span>
+            </button>
+          </h3>
           <div class="faq-answer" id={`faq-answer-${i}`}>
             <div class="overflow-hidden">
               <p class="pt-4 text-[16px] leading-[1.6] tracking-[-0.16px] text-[#bebdbd] light:text-[#525252]">
@@ -73,10 +92,12 @@ const faqs = [
             </div>
           </div>
         </div>
-        {i < faqs.length - 1 && <img src="/images/faq-divider.svg" alt="" class="h-px w-full light:brightness-0 light:opacity-25" aria-hidden="true" />}
+        {i < faqs.length - 1 && <img src="/images/faq-divider.svg" alt="" class="h-px w-full light:brightness-0 light:opacity-25" aria-hidden="true" loading="lazy" />}
       </>
     ))}
   </div>
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 </section>
 
 <style>

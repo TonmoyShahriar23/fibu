@@ -1,0 +1,40 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<!-- A real 404 page keeps hosts from serving a soft-404 (a "not found" message
+     under a 200 status), which search engines treat as a thin indexable page. -->
+<Layout
+  title="Page not found — Fibu"
+  description="That page doesn't exist. Head back to Fibu and pick up your coding streak where you left off."
+  noindex
+>
+  <div class="relative flex min-h-screen flex-col overflow-x-clip bg-black text-white light:bg-white light:text-[#1c1512]">
+    <Navbar />
+
+    <main
+      id="main"
+      tabindex="-1"
+      class="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-32 text-center"
+    >
+      <p class="font-pixel text-[96px] leading-[0.9] text-[#ff952d] sm:text-[140px]">404</p>
+      <h1 class="heading-gradient font-pixel max-w-[560px] text-[36px] uppercase leading-[0.9] sm:text-[52px]">
+        This page took a rest day
+      </h1>
+      <p class="max-w-[480px] text-[18px] leading-[1.7] text-[#9e9e9e] light:text-[#525252]">
+        The link you followed doesn't exist — but your streak doesn't have to end here.
+      </p>
+      <a href="/" class="block w-[188px] rounded-[16px] bg-[#e77a00] pb-[4px]">
+        <span
+          class="font-satoshi flex h-12 w-full items-center justify-center whitespace-nowrap rounded-[16px] bg-[#ff952d] text-[16px] font-bold leading-[22px] text-[#0a0a0a] transition-transform duration-100 active:translate-y-[2px]"
+        >
+          Back to home
+        </span>
+      </a>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>

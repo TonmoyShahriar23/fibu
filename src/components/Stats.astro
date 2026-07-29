@@ -10,8 +10,11 @@ const stats = [
 
 <section
   id="stats"
+  aria-labelledby="stats-heading"
   class="relative z-10 mx-auto grid w-full max-w-[1224px] grid-cols-1 gap-6 px-4 text-center sm:grid-cols-3"
 >
+  <!-- sr-only is position:absolute, so this never takes a grid cell. -->
+  <h2 id="stats-heading" class="sr-only">Fibu by the numbers</h2>
   {stats.map((stat) => (
     <div class="flex flex-col gap-4">
       <p

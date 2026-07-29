@@ -12,21 +12,70 @@ import Pricing from '../components/Pricing.astro';
 import FAQ from '../components/FAQ.astro';
 import FinalCTA from '../components/FinalCTA.astro';
 import Footer from '../components/Footer.astro';
+
+const site = Astro.site;
+const abs = (path: string) => (site ? new URL(path, site).href : path);
+
+// The product this page is about. No aggregateRating is claimed — the page has
+// no verifiable review data, and inventing one is exactly what rich-result
+// spam policies exist to catch.
+const appSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'MobileApplication',
+  '@id': `${site?.origin ?? ''}/#app`,
+  name: 'Fibu',
+  alternateName: 'Programming Hero',
+  applicationCategory: 'EducationalApplication',
+  operatingSystem: 'iOS, Android',
+  url: abs('/'),
+  image: abs('/images/app-icon.png'),
+  description:
+    'Fibu turns coding into a daily habit you actually keep: 10–15 minute missions in Python, JavaScript and web development, with streaks, XP, badges and a community of 2.64M+ learners.',
+  inLanguage: 'en',
+  publisher: { '@id': `${site?.origin ?? ''}/#organization` },
+  featureList: [
+    '10–15 minute daily coding missions',
+    'Learning paths for Python, JavaScript and Web Development',
+    'XP, streaks, badges and levels',
+    'Real projects you can put in a portfolio',
+    'A community of 2.64M+ learners',
+  ],
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+    description: 'Free daily missions; Premium unlocks extra practice, projects and offline access.',
+  },
+};
 ---
 
-<Layout title="Fibu — Learn to Code, 15 Minutes at a Time">
-  <main class="relative min-h-screen overflow-x-clip bg-black text-white light:bg-white light:text-[#1c1512]">
+<Layout>
+  <a
+    href="#main"
+    class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[12px] focus:bg-[#ff952d] focus:px-4 focus:py-2 focus:text-[16px] focus:font-bold focus:text-[#0a0a0a]"
+  >
+    Skip to main content
+  </a>
+
+  <!-- Positioning context for the hero backdrops, which are absolutely placed
+       against the page shell. The <header> and <footer> sit outside <main> so
+       the page exposes proper banner / main / contentinfo landmarks. -->
+  <div class="relative min-h-screen overflow-x-clip bg-black text-white light:bg-white light:text-[#1c1512]">
     <Navbar />
-    <Hero />
-    <PhoneMockup />
-    <Stats />
-    <ProblemSolution />
-    <TwoGuides />
-    <StepsSection />
-    <Testimonials />
-    <Pricing />
-    <FAQ />
-    <FinalCTA />
+    <main id="main" tabindex="-1">
+      <Hero />
+      <PhoneMockup />
+      <Stats />
+      <ProblemSolution />
+      <TwoGuides />
+      <StepsSection />
+      <Testimonials />
+      <Pricing />
+      <FAQ />
+      <FinalCTA />
+    </main>
     <Footer />
-  </main>
+  </div>
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(appSchema)} />
 </Layout>

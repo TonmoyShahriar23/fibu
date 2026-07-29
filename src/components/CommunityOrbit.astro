@@ -77,7 +77,15 @@ const nodes = portraits.map(({ src, x, y }) => {
 ---
 
 <div class="absolute left-0 top-[31px] w-full" aria-hidden="true">
-  <img src="/images/community-orbit-bg.png" alt="" class="block w-full" loading="lazy" />
+  <img
+    src="/images/community-orbit-bg.png"
+    alt=""
+    class="block w-full"
+    width="392"
+    height="429"
+    loading="lazy"
+    decoding="async"
+  />
   <!-- Overlaid on the artwork at the same 392x429 scale, and clipped to it: a
        portrait that runs off the card is simply outside the SVG viewport.
        rotate="0" is the point of the exercise — each portrait keeps its

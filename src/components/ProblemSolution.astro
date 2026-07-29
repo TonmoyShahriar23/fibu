@@ -32,13 +32,14 @@ const problems = [
   <!-- ======================= problem ======================= -->
   <div class="mt-[120px] flex flex-col items-center gap-[52px]">
     <h2
+      id="problem-heading"
       class="heading-gradient font-pixel max-w-[624px] text-center text-[32px] uppercase leading-[0.9] sm:text-[44px] lg:text-[64px]"
     >
       Here's why your last coding app didn't work out
     </h2>
 
     <!-- The outer cards fly in from beyond the viewport edges while the middle
-         one flips into place; main's overflow-x-clip absorbs the travel. -->
+         one flips into place; the page shell's overflow-x-clip absorbs the travel. -->
     <div id="problem-cards" class="grid w-full grid-cols-1 gap-6 md:grid-cols-3">
       <!-- card 1: textbook fox -->
       <article class="card-shell reveal reveal-from-left">
@@ -113,7 +114,7 @@ const problems = [
   <!-- ===== solution: the icon fans back out; heading nested in the lower flare ===== -->
   <!-- flow-root keeps the heading's original top margin from collapsing, so the
        connector below still anchors to the icon while every block keeps its size -->
-  <div class="relative flow-root">
+  <div id="solution" class="relative flow-root">
     <!-- diverging connector: icon → the three solution cards -->
     <!-- The -scale-y-100 flip puts the hub at the path's END, so travel is
          reversed to keep the node flowing outward from the icon. These run in
@@ -224,13 +225,19 @@ const problems = [
           src="/images/streak-calendar-stack.png"
           alt=""
           class="absolute left-1/2 top-[143px] w-[384px] max-w-none -translate-x-1/2 light:hidden"
+          width="384"
+          height="203"
           loading="lazy"
+          decoding="async"
         />
         <img
           src="/images/streak-calendar-stack-light.png"
           alt=""
           class="absolute left-1/2 top-[143px] hidden w-[384px] max-w-none -translate-x-1/2 light:block"
+          width="384"
+          height="199"
           loading="lazy"
+          decoding="async"
         />
 
         <!-- The three earned days. The calendar art behind carries the unlit

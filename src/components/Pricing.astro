@@ -37,13 +37,20 @@ const plans = [
   document.documentElement.classList.add('js-motion');
 </script>
 
-<section class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[1224px] flex-col items-center gap-10 px-4">
-  <h2 class="heading-gradient font-pixel w-full text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]">
+<section
+  id="premium"
+  aria-labelledby="pricing-heading"
+  class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[1224px] flex-col items-center gap-10 px-4"
+>
+  <h2
+    id="pricing-heading"
+    class="heading-gradient font-pixel w-full text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
+  >
     Ready to go further?
   </h2>
 
   <!-- Monthly flies in from beyond the left edge and Yearly from the right, into
-       the pill that already holds their slot; main's overflow-x-clip absorbs the
+       the pill that already holds their slot; the page shell's overflow-x-clip absorbs the
        travel so neither one widens the page on the way in. -->
   <div
     id="pricing-plans"
@@ -61,7 +68,7 @@ const plans = [
       >
         <div class="flex w-full flex-col gap-10">
           <div class="flex items-start justify-between">
-            <p class="text-[32px] font-semibold leading-none tracking-[-0.96px]">{plan.name}</p>
+            <h3 class="text-[32px] font-semibold leading-none tracking-[-0.96px]">{plan.name}</h3>
             <p class="text-[32px] font-medium leading-[1.3] tracking-[-1.6px]">
               {plan.price}<span
                 class:list={[

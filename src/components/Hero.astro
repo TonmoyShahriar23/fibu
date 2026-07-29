@@ -2,7 +2,7 @@
 // Hero scene from Figma node 14196:20376 ("Hero Section") plus the page-level
 // backdrop layers (image 1, pixel arc, ph_planet decorations) that sit behind
 // the navbar and phone mockup. Backdrop divs are absolutely positioned against
-// <main>, so this component must be rendered inside a `relative` container.
+// the page shell, so this component must be rendered inside a `relative` container.
 
 // Headline is split per letter for the typewriter loop. Letters are grouped by
 // word because each letter renders as an inline-block (transforms don't apply to
@@ -25,7 +25,8 @@ const headlineWords = headline.split(" ").map((word) => ({
 <!-- backdrop: night-sky photo with fade-to-black, pixel arc (dark mode) -->
 <div class="pointer-events-none absolute inset-x-0 top-0 z-0 transition-opacity duration-500 light:opacity-0" aria-hidden="true">
   <div class="absolute left-1/2 top-0 ml-[50px] h-[1463px] w-[1882px] -translate-x-1/2">
-    <img src="/images/hero-bg.png" alt="" class="size-full object-cover" />
+    <!-- Largest above-the-fold image, so it is the LCP candidate on most viewports. -->
+    <img src="/images/hero-bg.png" alt="" class="size-full object-cover" width="2000" height="1555" fetchpriority="high" decoding="async" />
     <div class="absolute inset-0 bg-gradient-to-b from-[rgba(0,0,0,0)] from-[57.28%] to-black"></div>
   </div>
   <div class="absolute left-1/2 top-[-733px] h-[1004px] w-[1157px] -translate-x-1/2">
@@ -40,7 +41,7 @@ const headlineWords = headline.split(" ").map((word) => ({
      and a warm peach glow peaks at top-center behind the nav. -->
 <div class="pointer-events-none absolute inset-x-0 top-0 z-0 opacity-0 transition-opacity duration-500 light:opacity-100" aria-hidden="true">
   <div class="absolute left-1/2 top-0 ml-[50px] h-[1463px] w-[1882px] -translate-x-1/2">
-    <img src="/images/hero-bg.png" alt="" class="hero-speckles size-full object-cover" />
+    <img src="/images/hero-bg.png" alt="" class="hero-speckles size-full object-cover" width="2000" height="1555" decoding="async" />
     <div class="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0)] from-[42%] to-white"></div>
   </div>
   <div class="hero-light-glow absolute inset-x-0 top-0 h-[900px]"></div>

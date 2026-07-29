@@ -71,10 +71,13 @@ const columns = [
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-8 text-[16px] text-white light:text-[#1c1512] sm:grid-cols-4 lg:flex lg:gap-14">
+      <nav
+        aria-label="Footer"
+        class="grid grid-cols-2 gap-8 text-[16px] text-white light:text-[#1c1512] sm:grid-cols-4 lg:flex lg:gap-14"
+      >
         {columns.map((col) => (
           <div class="flex flex-col gap-4">
-            <p class="font-geist w-[136px] font-medium leading-[1.65] tracking-[-0.32px]">{col.title}</p>
+            <h2 class="font-geist w-[136px] font-medium leading-[1.65] tracking-[-0.32px]">{col.title}</h2>
             <ul class="flex flex-col gap-2 leading-[1.6] tracking-[-0.16px]">
               {col.links.map((link) => (
                 <li>
@@ -84,7 +87,7 @@ const columns = [
             </ul>
           </div>
         ))}
-      </div>
+      </nav>
     </div>
 
     <!-- lower -->

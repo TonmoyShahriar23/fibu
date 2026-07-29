@@ -16,9 +16,14 @@ const fibu = {
   document.documentElement.classList.add('js-motion');
 </script>
 
-<section class="relative z-10 mx-auto mt-[120px] w-full max-w-[1224px] px-4 xl:mt-[208px]">
+<section
+  id="guides"
+  aria-labelledby="guides-heading"
+  class="relative z-10 mx-auto mt-[120px] w-full max-w-[1224px] px-4 xl:mt-[208px]"
+>
   <div class="relative flex flex-col items-center gap-10 xl:block xl:h-[875px]">
     <h2
+      id="guides-heading"
       class="heading-gradient font-pixel mx-auto max-w-[458px] text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
     >
       You get two guides. Not just an app.
@@ -28,7 +33,10 @@ const fibu = {
       src="/images/guides-illustration.png"
       alt="Fibu the fox waving a flag beside Grandma holding a balloon"
       class="w-full max-w-[500px] xl:absolute xl:left-[272px] xl:top-[275px] xl:w-[665px] xl:max-w-none"
+      width="665"
+      height="600"
       loading="lazy"
+      decoding="async"
     />
 
     <!-- Fibu introduces himself on a loop: name, then body, one character at a
@@ -38,16 +46,16 @@ const fibu = {
          The spans have to stay on one line: a newline between them would
          render as a stray space mid-sentence. -->
     <div id="fibu-card" class="guide-card guide-card-fibu xl:absolute xl:left-0 xl:top-[298px]">
-      <p
+      <h3
         class="type-line text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white light:text-[#1c1512]"
-      ><span class="type-typed"></span><span class="type-caret" aria-hidden="true"></span><span class="type-rest">{fibu.name}</span></p>
+      ><span class="type-typed"></span><span class="type-caret" aria-hidden="true"></span><span class="type-rest">{fibu.name}</span></h3>
       <p
         class="type-line font-fira text-[18px] leading-[1.4] text-white light:text-[#3f3f3f]"
       ><span class="type-typed"></span><span class="type-caret" aria-hidden="true"></span><span class="type-rest">{fibu.body}</span></p>
     </div>
 
     <div class="guide-card guide-card-grandma xl:absolute xl:right-0 xl:top-[108px]">
-      <p class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white light:text-[#1c1512]">Grandma</p>
+      <h3 class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white light:text-[#1c1512]">Grandma</h3>
       <p class="font-fira text-[18px] leading-[1.4] text-white light:text-[#3f3f3f]">
         Grandma is the one who reminds you there's no such thing as behind only next. Broke your
         streak? Missed a week? Grandma's not disappointed. She's just glad you're back.
