@@ -1,8 +1,10 @@
 import type { APIRoute } from 'astro';
+import { posts } from '../data/posts';
 
 // Every indexable route on the site. The 404 page is deliberately absent — it is
-// marked noindex. Add new pages here as they land.
-const routes = ['/', '/blog'];
+// marked noindex. Add new pages here as they land; the post pages are derived
+// from the same list that generates them, so they cannot drift.
+const routes = ['/', '/blog', ...posts.map((post) => `/blog/${post.slug}`)];
 
 export const GET: APIRoute = ({ site }) => {
   const origin = site?.origin ?? '';

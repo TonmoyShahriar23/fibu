@@ -1,0 +1,83 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import PostHero from '../../components/PostHero.astro';
+import PostBody from '../../components/PostBody.astro';
+import MoreFromInsights from '../../components/MoreFromInsights.astro';
+import FinalCTA from '../../components/FinalCTA.astro';
+import Footer from '../../components/Footer.astro';
+import { posts, ARTICLE_AUTHOR, ARTICLE_DATE, ARTICLE_HERO } from '../../data/posts';
+
+export const getStaticPaths = (() => {
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+}) satisfies GetStaticPaths;
+
+const { post } = Astro.props;
+
+const site = Astro.site;
+const abs = (path: string) => (site ? new URL(path, site).href : path);
+
+// Figma supplies one article body, which every post shares. The description is
+// derived from that shared opening rather than invented per post.
+const description =
+  'Four common challenges learners face — information overload, inconsistent habits, the gap between theory and execution, and skill plateaus — with practical strategies for each.';
+
+const postSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  '@id': `${site?.origin ?? ''}/blog/${post.slug}#post`,
+  headline: post.title,
+  description,
+  url: abs(`/blog/${post.slug}`),
+  image: abs(ARTICLE_HERO),
+  datePublished: ARTICLE_DATE.iso,
+  inLanguage: 'en',
+  author: { '@type': 'Person', name: ARTICLE_AUTHOR.name, jobTitle: ARTICLE_AUTHOR.role },
+  publisher: { '@id': `${site?.origin ?? ''}/#organization` },
+  isPartOf: { '@id': `${site?.origin ?? ''}/blog#blog` },
+  mainEntityOfPage: abs(`/blog/${post.slug}`),
+};
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: abs('/') },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: abs('/blog') },
+    { '@type': 'ListItem', position: 3, name: post.title, item: abs(`/blog/${post.slug}`) },
+  ],
+};
+---
+
+<Layout title={`${post.title} — Fibu`} description={description} image={ARTICLE_HERO}>
+  <a
+    href="#main"
+    class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[12px] focus:bg-[#ff952d] focus:px-4 focus:py-2 focus:text-[16px] focus:font-bold focus:text-[#0a0a0a]"
+  >
+    Skip to main content
+  </a>
+
+  <!-- Positioning context for the hero backdrop, which is absolutely placed
+       against the page shell. The <header> and <footer> sit outside <main> so the
+       page exposes proper banner / main / contentinfo landmarks. -->
+  <div class="relative min-h-screen overflow-x-clip bg-black text-white light:bg-white light:text-[#1c1512]">
+    <!-- The navbar overlays the hero photo, so it needs to sit above it. -->
+    <div class="relative z-20">
+      <Navbar />
+    </div>
+
+    <main id="main" tabindex="-1" class="-mt-[105px]">
+      <article>
+        <PostHero title={post.title} />
+        <PostBody />
+      </article>
+      <MoreFromInsights currentSlug={post.slug} />
+      <FinalCTA />
+    </main>
+    <Footer />
+  </div>
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(postSchema)} />
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+</Layout>

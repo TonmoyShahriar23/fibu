@@ -1,0 +1,71 @@
+---
+// Post hero from Figma nodes 14543:843 (the full-bleed image, 1440x652 with a
+// 32px bottom radius and a transparent->black gradient) and 14543:844 (the title
+// and byline block, which overlays it at y372).
+//
+// The block sits on a dark photograph in both themes, so everything here is white
+// with no `light:` overrides — that matches the light frame, which also uses
+// white text at this spot.
+import { ARTICLE_AUTHOR, ARTICLE_DATE, ARTICLE_HERO } from '../data/posts';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="relative isolate w-full">
+  <!-- Full-bleed backdrop. The gradient stops match Figma: fully transparent
+       until 29%, reaching black just past the bottom edge, which is what lets the
+       title read cleanly over the photo.
+       It spans the whole block rather than a fixed 652px so the band still ends
+       just below the byline when a shorter title takes one line instead of two. -->
+  <div class="absolute inset-0 -z-10 overflow-hidden rounded-b-[32px]" aria-hidden="true">
+    <img
+      src={ARTICLE_HERO}
+      alt=""
+      width="1600"
+      height="724"
+      class="size-full object-cover"
+      fetchpriority="high"
+      decoding="async"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-[rgba(0,0,0,0)] from-[29.167%] to-black to-[111.67%]"></div>
+  </div>
+
+  <div class="mx-auto flex w-full max-w-[1224px] flex-col gap-6 px-4 pb-12 pt-[200px] sm:pb-14 sm:pt-[280px] lg:pt-[372px]">
+    <h1 class="font-pixel text-[40px] uppercase leading-[0.9] text-white sm:text-[56px] lg:text-[80px]">
+      {title}
+    </h1>
+
+    <div class="flex flex-wrap items-start gap-x-14 gap-y-6">
+      <div class="flex items-center gap-3">
+        <img
+          src={ARTICLE_AUTHOR.avatar}
+          alt=""
+          width="112"
+          height="112"
+          class="size-14 shrink-0 rounded-full object-cover"
+          loading="lazy"
+        />
+        <div class="flex flex-col gap-0.5 text-white">
+          <p class="text-[20px] font-medium leading-[1.6] tracking-[-0.8px]">{ARTICLE_AUTHOR.name}</p>
+          <p class="text-[16px] leading-[1.3] tracking-[-0.2px] opacity-60">{ARTICLE_AUTHOR.role}</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <span class="flex items-center rounded-[40px] bg-[rgba(255,255,255,0.2)] p-3" aria-hidden="true">
+          <img src="/images/icon-calendar.svg" alt="" class="block size-8" loading="lazy" />
+        </span>
+        <div class="flex flex-col text-white">
+          <p class="text-[16px] leading-[1.3] tracking-[-0.2px] opacity-60">Created Date</p>
+          <p class="text-[20px] font-medium leading-[1.6] tracking-[-0.8px]">
+            <time datetime={ARTICLE_DATE.iso}>{ARTICLE_DATE.label}</time>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
