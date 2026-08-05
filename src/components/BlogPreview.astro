@@ -1,0 +1,44 @@
+---
+// Blog preview from Figma node 14547:38638 ("Frame 2087326284", 1224x592) inside
+// the dark "Landing 6" frame, sitting between Pricing and FAQ. The light frame
+// ("Landing 7") has no counterpart for this section — the light palette comes
+// from BlogCard, which already carries the `light:` overrides established for the
+// Blog Listing page, so nothing is derived or invented here.
+//
+// Figma spacing: 48px heading -> content, 40px cards -> button, 24px gutters.
+// The cards are the first three posts, which is what the design shows; they are
+// read from posts.ts so read times stay consistent with /blog rather than the
+// stale "22 hours ago" this frame still carries.
+import BlogCard from './BlogCard.astro';
+import { posts } from '../data/posts';
+
+const previewPosts = posts.slice(0, 3);
+---
+
+<section
+  id="blog"
+  aria-labelledby="blog-heading"
+  class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[1224px] flex-col items-center gap-12 px-4"
+>
+  <h2
+    id="blog-heading"
+    class="heading-gradient font-pixel text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
+  >
+    Ideas, Insights & Inspiration
+  </h2>
+
+  <div class="flex w-full flex-col items-center gap-10">
+    <ul class="grid w-full list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3">
+      {previewPosts.map((post) => <BlogCard post={post} />)}
+    </ul>
+
+    <!-- Same 3D press treatment as the navbar's "Start Free" button. -->
+    <a href="/blog" class="block rounded-[16px] bg-[#e77a00] pb-[4px]">
+      <span
+        class="font-satoshi flex h-12 items-center justify-center whitespace-nowrap rounded-[16px] bg-[#ff952d] px-6 text-center text-[16px] font-bold leading-[22px] text-[#0a0a0a] transition-transform duration-100 active:translate-y-[2px]"
+      >
+        See more blogs
+      </span>
+    </a>
+  </div>
+</section>
