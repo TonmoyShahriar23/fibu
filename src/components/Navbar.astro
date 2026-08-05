@@ -9,12 +9,22 @@ const navLinks = [
 ];
 
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+// The inline links need ~722px of bar to sit alongside the logo and buttons, so
+// they only appear from `lg` up — at `md` (768px) they overflowed the pill and
+// pushed "Start Free" off-screen. Below `lg` they live in the drop-down instead.
+//
+// Space at 320px is tight enough that the bar cannot hold the logo, the theme
+// toggle, the CTA and a menu button at once. The CTA is the primary action, so
+// the theme toggle is what moves into the drop-down on small screens.
+const toggleClass =
+  'relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-[16px] border border-[rgba(255,242,240,0.12)] bg-[#0a0604] text-[#ff952d] transition-colors hover:border-[rgba(255,149,45,0.5)] light:border-[rgba(0,0,0,0.08)] light:bg-[#f4f1ec] light:hover:border-[rgba(255,149,45,0.6)] sm:size-12';
 ---
 
 <header class="relative z-30 flex justify-center px-4 pt-[29px]">
   <nav
     aria-label="Main"
-    class="flex w-full max-w-[800px] items-center justify-between gap-3 rounded-[28px] border border-[rgba(255,242,240,0.1)] bg-[#030003] py-[14px] pl-4 pr-4 shadow-[0_10px_40px_rgba(0,0,0,0.5)] light:border-[rgba(0,0,0,0.07)] light:bg-white light:shadow-[0_8px_30px_rgba(28,21,18,0.08)] sm:gap-6 sm:pl-5 sm:pr-5 lg:gap-10"
+    class="relative flex w-full max-w-[800px] items-center justify-between gap-2 rounded-[28px] border border-[rgba(255,242,240,0.1)] bg-[#030003] py-[14px] pl-2 pr-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] light:border-[rgba(0,0,0,0.07)] light:bg-white light:shadow-[0_8px_30px_rgba(28,21,18,0.08)] sm:gap-3 sm:pl-4 sm:pr-4 lg:gap-10"
   >
     <div class="flex items-center gap-12">
       <a href="/" class="relative block h-12 w-24 shrink-0 overflow-clip" aria-label="Fibu — home">
@@ -32,7 +42,7 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
         </span>
       </a>
 
-      <ul class="hidden items-center gap-10 whitespace-nowrap md:flex">
+      <ul class="hidden items-center gap-10 whitespace-nowrap lg:flex">
         {navLinks.map((link) => (
           <li>
             <a
@@ -47,13 +57,13 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
       </ul>
     </div>
 
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3">
       <!-- Theme toggle (not in Figma; styled to match the pill/border/accent language) -->
       <button
-        id="theme-toggle"
         type="button"
+        data-theme-toggle
         aria-label="Toggle dark and light mode"
-        class="relative flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-[16px] border border-[rgba(255,242,240,0.12)] bg-[#0a0604] text-[#ff952d] transition-colors hover:border-[rgba(255,149,45,0.5)] light:border-[rgba(0,0,0,0.08)] light:bg-[#f4f1ec] light:hover:border-[rgba(255,149,45,0.6)]"
+        class={`hidden lg:flex ${toggleClass}`}
       >
         <!-- moon: shown in dark mode -->
         <svg
@@ -84,28 +94,137 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
         </svg>
       </button>
 
-      <a href="#start" class="block w-[124px] shrink-0 rounded-[16px] bg-[#e77a00] pb-[4px]">
+      <a href="#start" class="block shrink-0 rounded-[16px] bg-[#e77a00] pb-[4px]">
         <span
-          class="font-satoshi flex h-12 w-full items-center justify-center whitespace-nowrap rounded-[16px] bg-[#ff952d] text-center text-[16px] font-bold leading-[22px] text-[#0a0a0a] transition-transform duration-100 active:translate-y-[2px]"
+          class="font-satoshi flex h-12 items-center justify-center whitespace-nowrap rounded-[16px] bg-[#ff952d] px-3 text-center text-[16px] font-bold leading-[22px] text-[#0a0a0a] transition-transform duration-100 active:translate-y-[2px] sm:px-4 lg:w-[124px] lg:px-0"
         >
           Start Free
         </span>
       </a>
+
+      <!-- Menu button (not in Figma — no mobile frame was designed; styled to
+           match the theme toggle so the bar keeps one visual language). -->
+      <button
+        type="button"
+        id="nav-toggle"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="nav-menu"
+        class={`lg:hidden ${toggleClass}`}
+      >
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path class="nav-icon-open" d="M4 7h16M4 12h16M4 17h16" />
+          <path class="nav-icon-close hidden" d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </div>
+
+    <div
+      id="nav-menu"
+      hidden
+      class="absolute inset-x-0 top-full z-40 mt-2 rounded-[24px] border border-[rgba(255,242,240,0.1)] bg-[#030003] p-2 shadow-[0_10px_40px_rgba(0,0,0,0.5)] light:border-[rgba(0,0,0,0.07)] light:bg-white light:shadow-[0_8px_30px_rgba(28,21,18,0.08)] lg:hidden"
+    >
+      <ul class="flex flex-col">
+        {navLinks.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              aria-current={link.href === currentPath ? 'page' : undefined}
+              class="block rounded-[16px] px-4 py-3 text-[16px] leading-[1.7] text-white transition-colors hover:bg-[rgba(255,255,255,0.06)] aria-[current=page]:text-[#ff952d] light:text-[#1c1512] light:hover:bg-[rgba(0,0,0,0.04)] light:aria-[current=page]:text-[#e77a00]"
+            >
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <div class="mt-1 flex items-center justify-between gap-3 border-t border-[rgba(255,242,240,0.1)] px-4 pb-1 pt-3 light:border-[rgba(0,0,0,0.07)]">
+        <span class="text-[16px] leading-[1.7] text-white light:text-[#1c1512]">Appearance</span>
+        <button type="button" data-theme-toggle aria-label="Toggle dark and light mode" class={`flex ${toggleClass}`}>
+          <svg
+            class="size-5 transition-all duration-300 ease-out light:scale-0 light:-rotate-90 light:opacity-0"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+          <svg
+            class="absolute size-5 scale-0 rotate-90 opacity-0 transition-all duration-300 ease-out light:scale-100 light:rotate-0 light:opacity-100"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+          </svg>
+        </button>
+      </div>
     </div>
   </nav>
 </header>
 
 <script>
-  const btn = document.getElementById('theme-toggle');
-  btn?.addEventListener('click', () => {
-    const html = document.documentElement;
-    const toLight = !html.classList.contains('light');
-    html.classList.add('theme-anim');
-    html.classList.toggle('light', toLight);
-    html.classList.toggle('dark', !toLight);
-    try {
-      localStorage.setItem('theme', toLight ? 'light' : 'dark');
-    } catch (e) {}
-    window.setTimeout(() => html.classList.remove('theme-anim'), 400);
+  // Both toggles (bar on lg+, drop-down below that) drive the same theme state.
+  document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const html = document.documentElement;
+      const toLight = !html.classList.contains('light');
+      html.classList.add('theme-anim');
+      html.classList.toggle('light', toLight);
+      html.classList.toggle('dark', !toLight);
+      try {
+        localStorage.setItem('theme', toLight ? 'light' : 'dark');
+      } catch (e) {}
+      window.setTimeout(() => html.classList.remove('theme-anim'), 400);
+    });
   });
+
+  const navToggle = document.getElementById('nav-toggle');
+  const navMenu = document.getElementById('nav-menu');
+
+  if (navToggle && navMenu) {
+    const setOpen = (open: boolean) => {
+      navMenu.hidden = !open;
+      navToggle.setAttribute('aria-expanded', String(open));
+      navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      navToggle.querySelector('.nav-icon-open')?.classList.toggle('hidden', open);
+      navToggle.querySelector('.nav-icon-close')?.classList.toggle('hidden', !open);
+    };
+
+    navToggle.addEventListener('click', () => setOpen(navMenu.hidden));
+
+    // Following a link inside the panel leaves it open behind the navigation for
+    // same-page anchors, so close it on the way out.
+    navMenu.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('a')) setOpen(false);
+    });
+
+    document.addEventListener('click', (e) => {
+      const t = e.target as Node;
+      if (!navMenu.hidden && !navMenu.contains(t) && !navToggle.contains(t)) setOpen(false);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !navMenu.hidden) {
+        setOpen(false);
+        navToggle.focus();
+      }
+    });
+
+    // Crossing into the lg layout puts the links back in the bar; a panel left
+    // open would otherwise stay stuck open behind it.
+    const wide = window.matchMedia('(min-width: 1024px)');
+    wide.addEventListener('change', (e) => {
+      if (e.matches) setOpen(false);
+    });
+  }
 </script>

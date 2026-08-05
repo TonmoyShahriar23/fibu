@@ -32,29 +32,41 @@ const columns = [
             </span>
           </a>
 
-          <div class="flex items-start gap-5 transition-[filter] duration-300">
-            <a href="#x" aria-label="Fibu on X" class="relative block size-5 overflow-clip transition-opacity hover:opacity-70 light:brightness-0">
-              <span class="absolute" style="inset: 7.93% 4.17% 9.21% 4.17%;">
-                <img src="/images/social-x.svg" alt="" class="block size-full" loading="lazy" />
+          {/* The glyphs stay 20px; each link is a 44px box around one so the tap
+              target clears the 24px minimum. The inner span keeps `relative
+              overflow-clip` so the percentage insets below still resolve against
+              a 20x20 box, exactly as they did when the anchor carried them. */}
+          <div class="flex items-start gap-2 transition-[filter] duration-300">
+            <a href="#x" aria-label="Fibu on X" class="flex size-11 items-center justify-center transition-opacity hover:opacity-70 light:brightness-0">
+              <span class="relative block size-5 overflow-clip">
+                <span class="absolute" style="inset: 7.93% 4.17% 9.21% 4.17%;">
+                  <img src="/images/social-x.svg" alt="" class="block size-full" loading="lazy" />
+                </span>
               </span>
             </a>
-            <a href="#instagram" aria-label="Fibu on Instagram" class="relative block size-5 overflow-clip transition-opacity hover:opacity-70 light:brightness-0">
-              <span class="absolute" style="inset: 0 0.06% 0.02% 0;">
-                <img src="/images/social-instagram-1.svg" alt="" class="block size-full" loading="lazy" />
-              </span>
-              <span class="absolute" style="inset: 24.32%;">
-                <img src="/images/social-instagram-2.svg" alt="" class="block size-full" loading="lazy" />
-              </span>
-              <span class="absolute" style="inset: 17.3% 17.3% 70.7% 70.7%;">
-                <img src="/images/social-instagram-3.svg" alt="" class="block size-full" loading="lazy" />
+            <a href="#instagram" aria-label="Fibu on Instagram" class="flex size-11 items-center justify-center transition-opacity hover:opacity-70 light:brightness-0">
+              <span class="relative block size-5 overflow-clip">
+                <span class="absolute" style="inset: 0 0.06% 0.02% 0;">
+                  <img src="/images/social-instagram-1.svg" alt="" class="block size-full" loading="lazy" />
+                </span>
+                <span class="absolute" style="inset: 24.32%;">
+                  <img src="/images/social-instagram-2.svg" alt="" class="block size-full" loading="lazy" />
+                </span>
+                <span class="absolute" style="inset: 17.3% 17.3% 70.7% 70.7%;">
+                  <img src="/images/social-instagram-3.svg" alt="" class="block size-full" loading="lazy" />
+                </span>
               </span>
             </a>
-            <a href="#linkedin" aria-label="Fibu on LinkedIn" class="block size-5 overflow-clip transition-opacity hover:opacity-70">
-              <img src="/images/social-linkedin.svg" alt="" class="block size-full" loading="lazy" />
+            <a href="#linkedin" aria-label="Fibu on LinkedIn" class="flex size-11 items-center justify-center transition-opacity hover:opacity-70">
+              <span class="block size-5 overflow-clip">
+                <img src="/images/social-linkedin.svg" alt="" class="block size-full" loading="lazy" />
+              </span>
             </a>
-            <a href="#threads" aria-label="Fibu on Threads" class="relative block size-5 overflow-clip transition-opacity hover:opacity-70 light:brightness-0">
-              <span class="absolute" style="inset: 0 7.2% 0 6.77%;">
-                <img src="/images/social-threads.svg" alt="" class="block size-full" loading="lazy" />
+            <a href="#threads" aria-label="Fibu on Threads" class="flex size-11 items-center justify-center transition-opacity hover:opacity-70 light:brightness-0">
+              <span class="relative block size-5 overflow-clip">
+                <span class="absolute" style="inset: 0 7.2% 0 6.77%;">
+                  <img src="/images/social-threads.svg" alt="" class="block size-full" loading="lazy" />
+                </span>
               </span>
             </a>
           </div>
@@ -78,10 +90,13 @@ const columns = [
         {columns.map((col) => (
           <div class="flex flex-col gap-4">
             <h2 class="font-geist w-[136px] font-medium leading-[1.65] tracking-[-0.32px]">{col.title}</h2>
-            <ul class="flex flex-col gap-2 leading-[1.6] tracking-[-0.16px]">
+            {/* `block w-fit py-1` lifts each link's tap target from 20px to 34px
+                without widening it past its text; the list gap drops to 0 so the
+                visual rhythm between rows is unchanged. */}
+            <ul class="flex flex-col leading-[1.6] tracking-[-0.16px]">
               {col.links.map((link) => (
                 <li>
-                  <a href="#" class="opacity-70 transition-opacity hover:opacity-100">{link}</a>
+                  <a href="#" class="block w-fit py-1 opacity-70 transition-opacity hover:opacity-100">{link}</a>
                 </li>
               ))}
             </ul>

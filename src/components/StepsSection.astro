@@ -87,7 +87,10 @@ const steps = [
         ))}
       </div>
 
-      <div class="mt-6 flex items-center justify-center gap-2.5" role="tablist" aria-label="Choose app screen">
+      {/* gap-4 rather than gap-2.5 so each dot's expanded tap area (see the
+          .phone-dot::after rule) tiles against its neighbour instead of
+          overlapping it — a tap near the edge would otherwise hit the wrong dot. */}
+      <div class="mt-6 flex items-center justify-center gap-4" role="tablist" aria-label="Choose app screen">
         {screens.map((screen, i) => (
           <button
             type="button"
@@ -194,6 +197,7 @@ const steps = [
   }
 
   .phone-dot {
+    position: relative;
     height: 8px;
     width: 8px;
     border-radius: 9999px;
@@ -202,6 +206,15 @@ const steps = [
       width 0.4s ease,
       background-color 0.4s ease;
     cursor: pointer;
+  }
+
+  /* An 8px dot is far below a usable tap target, but growing the dot itself would
+     change the design. This stretches only the hit area — 24px wide (42px once
+     the active dot widens) and 44px tall — leaving the painted dot untouched. */
+  .phone-dot::after {
+    content: '';
+    position: absolute;
+    inset: -18px -8px;
   }
 
   .phone-dot.is-active {
