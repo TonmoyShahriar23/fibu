@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 
 // Every indexable route on the site. The 404 page is deliberately absent — it is
 // marked noindex. Add new pages here as they land.
-const routes = ['/'];
+const routes = ['/', '/blog'];
 
 export const GET: APIRoute = ({ site }) => {
   const origin = site?.origin ?? '';

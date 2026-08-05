@@ -1,0 +1,74 @@
+---
+// Blog hero band from Figma node 14526:79738 ("Frame 2087326282", 1440x470) on
+// the "Blog Listing Page" frame. It reuses the landing hero's backdrop assets —
+// Figma exports the identical night-sky bitmap and pixel arc for this frame, so
+// there is nothing new to download.
+//
+// The band sits at page y0 and the navbar overlays it, so the backdrops are
+// absolutely positioned against the page shell (this component must render
+// inside a `relative` container) while the title flows in normal document order.
+// The title's top margin + bottom padding are what carry the flow down to the
+// band's lower edge, keeping the following section's offset a plain `mt-6`.
+---
+
+<!-- backdrop: night-sky photo at 20%, fading to the page floor, plus the pixel
+     arc that hangs down from above the fold (dark mode) -->
+<div
+  class="pointer-events-none absolute inset-x-0 top-0 z-0 h-[300px] transition-opacity duration-500 light:opacity-0 sm:h-[380px] lg:h-[470px]"
+  aria-hidden="true"
+>
+  <div class="absolute left-1/2 top-0 h-full w-[1882px] -translate-x-1/2 overflow-hidden">
+    <img
+      src="/images/hero-bg.png"
+      alt=""
+      class="size-full object-cover opacity-20 mix-blend-difference"
+      width="2000"
+      height="1555"
+      fetchpriority="high"
+      decoding="async"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-[rgba(0,0,0,0)] from-[57.28%] to-black"></div>
+  </div>
+  <div class="absolute left-1/2 top-[-759px] hidden h-[1004px] w-[1157px] -translate-x-1/2 lg:block" style="margin-left: 55.5px;">
+    <div class="absolute" style="inset: -26.29% -22.82%;">
+      <img src="/images/hero-pixel-arc.svg" alt="" class="block size-full" />
+    </div>
+  </div>
+</div>
+
+<!-- backdrop: light mode — the same photo inverted to a faint tan starfield and
+     faded to white, matching how the landing hero handles the light palette -->
+<div
+  class="pointer-events-none absolute inset-x-0 top-0 z-0 h-[300px] opacity-0 transition-opacity duration-500 light:opacity-100 sm:h-[380px] lg:h-[470px]"
+  aria-hidden="true"
+>
+  <div class="absolute left-1/2 top-0 h-full w-[1882px] -translate-x-1/2 overflow-hidden">
+    <img
+      src="/images/hero-bg.png"
+      alt=""
+      class="blog-hero-speckles size-full object-cover"
+      width="2000"
+      height="1555"
+      decoding="async"
+    />
+    <div class="absolute inset-0 bg-gradient-to-b from-[rgba(255,255,255,0)] from-[42%] to-white"></div>
+  </div>
+</div>
+
+<div class="relative z-10 mx-auto mt-20 w-full max-w-[856px] px-4 pb-20 sm:mt-[110px] sm:pb-[115px] lg:mt-[141px] lg:pb-[152px]">
+  <h1
+    class="font-pixel text-center text-[40px] uppercase leading-[0.9] text-white light:text-[#1c1512] sm:text-[56px] lg:text-[80px]"
+  >
+    Blog/insight
+  </h1>
+</div>
+
+<style>
+  /* Inverting the night-sky photo turns its white stars into dark speckles, which
+     is what the light frame shows behind the title. Same treatment the landing
+     hero uses; duplicated here because Astro scopes component styles. */
+  .blog-hero-speckles {
+    opacity: 0.28;
+    filter: invert(1);
+  }
+</style>

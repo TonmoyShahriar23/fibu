@@ -1,0 +1,231 @@
+---
+// Blog listing: category filter row (Figma 14552:689), the "Latest blog/insights"
+// heading (14552:660) and the 12-card grid (14547:1231), all taken from the
+// light "Blog Listing Page" frame 14526:10844 — the newest revision in the file.
+// The dark frame (14547:1235) predates the filter row and heading, so its colours
+// are used for the dark baseline while its layout is ignored.
+//
+// Grid metrics from Figma: 1224px content column, 3 x 392px cards, 24px gutters.
+//
+// Figma carries no category data on the cards, so the `category` values below are
+// assigned from each post's subject matter. They are the only invented field —
+// title, read time, author and image all come straight from the design.
+const posts = [
+  {
+    title: 'Learn Smarter, Build Better: Insights for Your Learning Journey',
+    readTime: '5 min read',
+    image: '/images/blog-1.png',
+    category: 'Learning Habits',
+  },
+  {
+    title: 'How to Build a Learning Habit That Actually Lasts',
+    readTime: '8 min read',
+    image: '/images/blog-2.png',
+    category: 'Learning Habits',
+  },
+  {
+    title: '7 Ways to Improve Your Programming Skills',
+    readTime: '8 min read',
+    image: '/images/blog-3.png',
+    category: 'Backend',
+  },
+  {
+    title: 'Why Learning With Others Can Help You Grow Faster',
+    readTime: '8 min read',
+    image: '/images/blog-4.png',
+    category: 'Careers',
+  },
+  {
+    title: 'From Beginner to Builder: Your Path to Becoming a Developer',
+    readTime: '10 min read',
+    image: '/images/blog-5.png',
+    category: 'Careers',
+  },
+  {
+    title: 'How to Stay Motivated When Learning Gets Difficult',
+    readTime: '4 min read',
+    image: '/images/blog-6.png',
+    category: 'Learning Habits',
+  },
+  {
+    title: 'How to Learn Faster Without Feeling Overwhelmed',
+    readTime: '9 min read',
+    image: '/images/blog-7.png',
+    category: 'Learning Habits',
+  },
+  {
+    title: '5 Simple Habits Every Successful Learner Should Build',
+    readTime: '2 min read',
+    image: '/images/blog-8.png',
+    category: 'Learning Habits',
+  },
+  {
+    title: 'The Best Way to Start Learning Programming as a Beginner',
+    readTime: '7 min read',
+    image: '/images/blog-9.png',
+    category: 'Frontend',
+  },
+  {
+    title: 'What Should You Learn Before Your First Coding Project?',
+    readTime: '8 min read',
+    image: '/images/blog-10.png',
+    category: 'Frontend',
+  },
+  {
+    title: 'Turning Your Knowledge Into Real-World Skills',
+    readTime: '8 min read',
+    image: '/images/blog-11.png',
+    category: 'Careers',
+  },
+  {
+    title: 'How Challenges Can Make You a Better Learner',
+    readTime: '6 min read',
+    image: '/images/blog-12.png',
+    category: 'Backend',
+  },
+];
+
+const AUTHOR = 'Priya Verma';
+const ALL = 'All Posts';
+const categories = [ALL, 'Backend', 'Frontend', 'Learning Habits', 'Careers'];
+
+// The pressed pill is the orange 3D button used across the site; the idle pill is
+// the same shape in the neutral card palette. Both states are spelled out once
+// here so the two elements stay in sync.
+const pillShell = [
+  'group shrink-0 rounded-[16px] pb-1 transition-colors',
+  'bg-[#2c2a2a] light:bg-[#dedddd]',
+  'aria-pressed:bg-[#e77a00] light:aria-pressed:bg-[#e77a00]',
+].join(' ');
+
+const pillFace = [
+  'flex h-12 items-center justify-center whitespace-nowrap rounded-[16px] border px-6',
+  'font-satoshi text-[16px] font-bold leading-[22px] transition-colors',
+  'border-[#2c2a2a] bg-[#161616] text-white',
+  'light:border-[#dedddd] light:bg-white light:text-[#030003]',
+  'group-aria-pressed:border-[#ff952d] group-aria-pressed:bg-[#ff952d] group-aria-pressed:text-[#030003]',
+  'light:group-aria-pressed:border-[#ff952d] light:group-aria-pressed:bg-[#ff952d] light:group-aria-pressed:text-[#030003]',
+].join(' ');
+---
+
+<section
+  id="blog-list"
+  aria-labelledby="blog-list-heading"
+  class="relative z-10 mx-auto mt-6 w-full max-w-[1224px] px-4"
+>
+  <!-- Filter row. Scrolls sideways rather than wrapping on narrow screens, so the
+       grid below always starts at a predictable offset. -->
+  <div
+    role="group"
+    aria-label="Filter posts by category"
+    class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+  >
+    {
+      categories.map((category) => (
+        <button type="button" data-filter={category} aria-pressed={category === ALL} class={pillShell}>
+          <span class={pillFace}>{category}</span>
+        </button>
+      ))
+    }
+  </div>
+
+  <h2
+    id="blog-list-heading"
+    class="heading-gradient font-pixel mt-12 text-[40px] uppercase leading-none sm:text-[52px] xl:text-[64px]"
+  >
+    Latest blog/insights
+  </h2>
+
+  <ul class="mt-6 grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3">
+    {
+      posts.map((post, i) => (
+        <li data-category={post.category}>
+          <a
+            href="#"
+            class="group flex h-full flex-col gap-4 overflow-hidden rounded-[24px] bg-[#161616] pb-5 transition-transform duration-200 hover:-translate-y-1 light:bg-[#f7f6f4]"
+          >
+            <img
+              src={post.image}
+              alt=""
+              width="784"
+              height="440"
+              class="h-[220px] w-full object-cover"
+              loading={i < 3 ? 'eager' : 'lazy'}
+              fetchpriority={i < 3 ? 'auto' : 'low'}
+              decoding="async"
+            />
+
+            <div class="flex flex-1 flex-col justify-between gap-4 px-4">
+              <h3 class="text-[20px] font-medium leading-[1.4] tracking-[-0.3px] text-white light:text-[#0a0915]">
+                {post.title}
+              </h3>
+
+              <div class="flex items-center gap-2 rounded-[16px] border border-[#2c2a2a] bg-[#161616] px-4 py-2 shadow-[0_4px_0_0_#2c2a2a] light:border-[#bebdbd] light:bg-[#f7f6f4] light:shadow-[0_4px_0_0_#bebdbd]">
+                <span class="flex min-w-0 flex-1 flex-col text-[14px] leading-[1.8] tracking-[-0.2px]">
+                  <span class="font-medium text-white light:text-[#030003]">{post.readTime}</span>
+                  <span class="text-[#7e7e7e] light:text-[#52525a]">by {AUTHOR}</span>
+                </span>
+
+                <span class="grid size-6 shrink-0 place-items-center" aria-hidden="true">
+                  <img
+                    src="/images/blog-arrow-dark.svg"
+                    alt=""
+                    class="col-start-1 row-start-1 h-[13.5px] w-[7.3px] transition-transform duration-200 group-hover:translate-x-0.5 light:hidden"
+                    loading="lazy"
+                  />
+                  <img
+                    src="/images/blog-arrow-light.svg"
+                    alt=""
+                    class="col-start-1 row-start-1 hidden h-[13.5px] w-[7.3px] transition-transform duration-200 group-hover:translate-x-0.5 light:block"
+                    loading="lazy"
+                  />
+                </span>
+              </div>
+            </div>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <p
+    id="blog-empty"
+    hidden
+    class="mt-10 text-center text-[16px] leading-[1.6] text-[#7e7e7e] light:text-[#525252]"
+  >
+    No posts in this category yet.
+  </p>
+</section>
+
+<script>
+  const root = document.getElementById('blog-list');
+
+  if (root) {
+    const pills = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+    const cards = Array.from(root.querySelectorAll<HTMLLIElement>('li[data-category]'));
+    const empty = root.querySelector<HTMLParagraphElement>('#blog-empty');
+
+    // "All Posts" is the only filter that matches everything; every other pill is
+    // an exact match against the card's own category.
+    const apply = (filter: string) => {
+      let visible = 0;
+
+      for (const card of cards) {
+        const show = filter === 'All Posts' || card.dataset.category === filter;
+        card.hidden = !show;
+        if (show) visible += 1;
+      }
+
+      if (empty) empty.hidden = visible > 0;
+    };
+
+    for (const pill of pills) {
+      pill.addEventListener('click', () => {
+        for (const other of pills) {
+          other.setAttribute('aria-pressed', String(other === pill));
+        }
+        apply(pill.dataset.filter ?? 'All Posts');
+      });
+    }
+  }
+</script>

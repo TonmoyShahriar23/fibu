@@ -1,10 +1,14 @@
 ---
+// Section anchors are root-relative so they still resolve from pages other than
+// the homepage (e.g. /blog) — a bare "#courses" would dead-end there.
 const navLinks = [
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'Courses', href: '#courses' },
-  { label: 'Premium', href: '#premium' },
-  { label: 'Blog', href: '#blog' },
+  { label: 'How it works', href: '/#how-it-works' },
+  { label: 'Courses', href: '/#courses' },
+  { label: 'Premium', href: '/#premium' },
+  { label: 'Blog', href: '/blog' },
 ];
+
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 ---
 
 <header class="relative z-30 flex justify-center px-4 pt-[29px]">
@@ -33,7 +37,8 @@ const navLinks = [
           <li>
             <a
               href={link.href}
-              class="whitespace-nowrap text-[16px] leading-[1.7] text-white transition-colors hover:text-[#ff952d] light:text-[#1c1512]"
+              aria-current={link.href === currentPath ? 'page' : undefined}
+              class="whitespace-nowrap text-[16px] leading-[1.7] text-white transition-colors hover:text-[#ff952d] aria-[current=page]:text-[#ff952d] light:text-[#1c1512] light:aria-[current=page]:text-[#e77a00]"
             >
               {link.label}
             </a>

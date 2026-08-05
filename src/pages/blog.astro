@@ -1,0 +1,64 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import BlogHero from '../components/BlogHero.astro';
+import BlogList from '../components/BlogList.astro';
+import FinalCTA from '../components/FinalCTA.astro';
+import Footer from '../components/Footer.astro';
+
+const site = Astro.site;
+const abs = (path: string) => (site ? new URL(path, site).href : path);
+
+const title = 'Blog & Insights — Fibu';
+const description =
+  'Practical guides on building a coding habit that lasts: how to learn faster, stay motivated, and turn what you know into real-world skills.';
+
+// Describes the listing itself. The individual posts are deliberately left out —
+// they have no canonical URLs yet, and emitting entries that point at a
+// placeholder is exactly the kind of thing rich-result spam policies catch.
+const blogSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Blog',
+      '@id': `${site?.origin ?? ''}/blog#blog`,
+      name: 'Fibu Blog & Insights',
+      url: abs('/blog'),
+      description,
+      inLanguage: 'en',
+      publisher: { '@id': `${site?.origin ?? ''}/#organization` },
+    },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: abs('/') },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: abs('/blog') },
+      ],
+    },
+  ],
+};
+---
+
+<Layout title={title} description={description}>
+  <a
+    href="#main"
+    class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[12px] focus:bg-[#ff952d] focus:px-4 focus:py-2 focus:text-[16px] focus:font-bold focus:text-[#0a0a0a]"
+  >
+    Skip to main content
+  </a>
+
+  <!-- Positioning context for the hero band, which is absolutely placed against
+       the page shell. The <header> and <footer> sit outside <main> so the page
+       exposes proper banner / main / contentinfo landmarks. -->
+  <div class="relative min-h-screen overflow-x-clip bg-black text-white light:bg-white light:text-[#1c1512]">
+    <Navbar />
+    <main id="main" tabindex="-1">
+      <BlogHero />
+      <BlogList />
+      <FinalCTA />
+    </main>
+    <Footer />
+  </div>
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(blogSchema)} />
+</Layout>
