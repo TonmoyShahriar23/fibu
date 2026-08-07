@@ -117,7 +117,7 @@ const problems = [
          the second half of the cycle — they leave only once the three inbound
          nodes have landed on the hub. -->
     <div
-      class="pointer-events-none absolute inset-x-0 top-0 hidden h-[280px] md:block"
+      class="solution-wires pointer-events-none absolute inset-x-0 top-0 hidden h-[280px] md:block"
       aria-hidden="true"
       style="color: var(--connector);"
     >
@@ -128,6 +128,18 @@ const problems = [
         style="left: calc(50% - 428px);"
         reverse
         phase="second"
+      />
+      <!-- Straight drop from the icon, through the heading, down to the middle
+           solution card — the mirror of wire-in-middle above the hub, so the
+           middle column is wired on both legs instead of only the inbound one.
+           This is also the wire whose node dims as it crosses the heading. -->
+      <Connector
+        id="wire-out-middle"
+        d="M20 0V280"
+        viewBox="0 0 40 280"
+        class="left-1/2 w-10 -translate-x-1/2"
+        phase="second"
+        dim
       />
     </div>
 
@@ -333,6 +345,60 @@ const problems = [
     --reveal-to: perspective(1200px) rotateY(0deg);
   }
 
+  /* Band that the middle outbound node dims through: the solution heading's own
+     box, plus a little either side for the fade to ramp in. The heading starts
+     176px below the icon at every breakpoint the connector is visible at; only
+     its height changes with the font size, so only --dim-h needs a breakpoint.
+     Connector.astro turns these into the mask rect's y/height. */
+  .solution-wires {
+    --dim-y: 162px;
+    --dim-h: 92px; /* 14px ramp + 64px heading (lg) + 14px ramp */
+  }
+
+  @media (max-width: 1023px) {
+    .solution-wires {
+      --dim-h: 72px; /* heading is 44px below lg */
+    }
+  }
+
+  /* Impact flash. The outbound node is absorbed into the card at the end of its
+     travel; this lights the card's border for two quick pulses at that moment,
+     then hands the border straight back to the theme's resting value. Not
+     `forwards` — the resting style is the card's own, so nothing is left stuck
+     on when the animation finishes. */
+  @keyframes card-impact {
+    0% {
+      border-color: var(--card-border);
+      box-shadow: var(--card-shadow);
+    }
+    8% {
+      border-color: rgb(255 149 45 / 0.95);
+      box-shadow: 0 0 28px rgb(255 149 45 / var(--impact-glow));
+    }
+    28% {
+      border-color: rgb(255 149 45 / 0.18);
+      box-shadow: 0 0 10px rgb(255 149 45 / calc(var(--impact-glow) * 0.25));
+    }
+    48% {
+      border-color: rgb(255 149 45 / 0.8);
+      box-shadow: 0 0 22px rgb(255 149 45 / calc(var(--impact-glow) * 0.78));
+    }
+    100% {
+      border-color: var(--card-border);
+      box-shadow: var(--card-shadow);
+    }
+  }
+
+  .solution-card {
+    /* The glow has to work over both a black and a white card, so its strength
+       is a token rather than a fixed alpha. */
+    --impact-glow: 0.38;
+  }
+
+  :global(html.light) .solution-card {
+    --impact-glow: 0.55;
+  }
+
   /* Both flame animations pivot on the wick rather than the centre, so the base
      stays planted and only the body moves. */
   .streak-flame,
@@ -402,6 +468,34 @@ const problems = [
   }
 
   @media (prefers-reduced-motion: no-preference) {
+    .solution-card.is-hit {
+      animation: card-impact 900ms ease-out;
+    }
+
+    /* Hit reaction: the card lifts the way a hovered card would.
+
+       These cards have no :hover rule to reuse — there is none anywhere in this
+       component — so the look is defined here for the first time, in the site's
+       existing card idiom (BlogCard's lift-on-hover). A real
+       `.solution-card:hover` can share it later by joining the selector below;
+       nothing else would have to change.
+
+       Deliberately only `transform`. The border highlight and glow that complete
+       the hover look already arrive at this same instant from `card-impact`
+       above, and a running CSS animation outranks plain declarations — so
+       setting border-color/box-shadow here would be overridden for the entire
+       time this class is on the card, i.e. dead style. The two classes split the
+       job instead: card-impact owns the border and glow, this owns the lift. */
+    .solution-card.hover-active {
+      transform: translateY(-6px) scale(1.006);
+    }
+
+    /* On the way in and back out, so it reads as a hover settling rather than a
+       jump. Shorter than the hold, so the card is fully lifted for a moment. */
+    .solution-card {
+      transition: transform 260ms ease-out;
+    }
+
     .code-caret {
       animation: caret-blink 1.06s step-end infinite;
     }
@@ -511,6 +605,113 @@ const problems = [
 
       tick();
     }
+  }
+
+  // Impact flash: each solution card's border lights up on the frame the
+  // outbound node lands on it.
+  //
+  // The timing is read from the wires' own SMIL clock rather than kept on a
+  // separate JS timer. `getCurrentTime()` is the same timeline animateMotion
+  // runs on, so re-reading it before every flash means the two can never drift
+  // apart — a plain setInterval would slowly slide off the arrival.
+  const solutionSection = document.getElementById('solution');
+  // Specifically a connector's own <svg> — the cards further down hold unrelated
+  // inline SVG, so a bare 'svg' lookup here is not necessarily a wire.
+  const outboundWire = document.querySelector<SVGPathElement>('#wire-out-middle')?.ownerSVGElement;
+  const solutionCards = solutionSection
+    ? Array.from(solutionSection.querySelectorAll<HTMLElement>('.solution-card'))
+    : [];
+
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Must match Connector.astro's CYCLE, and the point in it where the outbound
+  // node finishes its travel (its opacity fade-out starts at 0.97).
+  const WIRE_CYCLE = 6.4;
+  const IMPACT_AT = 0.97;
+
+  if (
+    solutionSection &&
+    outboundWire &&
+    solutionCards.length &&
+    !reducedMotion &&
+    typeof outboundWire.getCurrentTime === 'function'
+  ) {
+    let timer = 0;
+    let running = false;
+
+    // How long the card holds the lifted, hovered-looking state. Long enough to
+    // register as a hover rather than a twitch, short enough to be back at rest
+    // well before the next node arrives.
+    const HOVER_HOLD = 500;
+    const hoverTimers = new WeakMap<HTMLElement, number>();
+
+    const clearHit = (card: HTMLElement) => card.classList.remove('is-hit');
+
+    const clearHover = (card: HTMLElement) => {
+      const pending = hoverTimers.get(card);
+      if (pending) {
+        window.clearTimeout(pending);
+        hoverTimers.delete(card);
+      }
+      card.classList.remove('hover-active');
+    };
+
+    for (const card of solutionCards) card.addEventListener('animationend', () => clearHit(card));
+
+    const flash = () => {
+      for (const card of solutionCards) {
+        card.classList.remove('is-hit');
+        // Reading layout between remove and add restarts the animation when a
+        // flash is still mid-run from the previous cycle.
+        void card.offsetWidth;
+        card.classList.add('is-hit');
+
+        // The hovered look rides the same arrival, on its own shorter clock —
+        // the border flash and the lift are separate effects with separate
+        // lifetimes, so they get separate timers rather than sharing one.
+        // Each card carries its own, keyed to the card, so one card's reset can
+        // never cancel another's.
+        clearHover(card);
+        card.classList.add('hover-active');
+        hoverTimers.set(
+          card,
+          window.setTimeout(() => {
+            card.classList.remove('hover-active');
+            hoverTimers.delete(card);
+          }, HOVER_HOLD),
+        );
+      }
+      queue();
+    };
+
+    const queue = () => {
+      const elapsed = outboundWire.getCurrentTime() % WIRE_CYCLE;
+      let wait = IMPACT_AT * WIRE_CYCLE - elapsed;
+      // Already past this cycle's arrival — take the next one.
+      if (wait <= 0.05) wait += WIRE_CYCLE;
+      timer = window.setTimeout(flash, wait * 1000);
+    };
+
+    // Nothing to flash while the section is off-screen, and no reason to hold a
+    // timer open either.
+    const impactObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !running) {
+            running = true;
+            queue();
+          } else if (!entry.isIntersecting && running) {
+            running = false;
+            window.clearTimeout(timer);
+            solutionCards.forEach(clearHit);
+            solutionCards.forEach(clearHover);
+          }
+        }
+      },
+      { rootMargin: '10% 0px' },
+    );
+
+    impactObserver.observe(solutionSection);
   }
 
   // Streak days catch one after another, once, the first time the card is
