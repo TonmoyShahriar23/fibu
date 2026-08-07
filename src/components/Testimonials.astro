@@ -3,81 +3,52 @@
 // then a 3-column card grid (cards: #070606, border #2c2a2a, 24px radius)
 // masked by a linear alpha fade — fully opaque to 51.7% of the grid height,
 // transparent at the bottom (mask asset 1224x747, gradient y386.5→747).
-const testimonials = [
-  {
-    avatar: '/images/testimonial-1.jpg',
-    name: 'Ethan Carter',
-    role: 'Software Engineer',
-    quote:
-      "Just joined the @fibu beta and wow, this is the seamless UI/UX that task management has been craving! It's like a breath of fresh air for productivity tools.",
-  },
-  {
-    avatar: '/images/testimonial-2.jpg',
-    name: 'Sophia Bennett',
-    role: 'Cloud Engineer',
-    quote:
-      "Just got into the @fibu beta and my first impression is that this is the elegant UI/UX that task management apps have been waiting for. It's impressive!",
-  },
-  {
-    avatar: '/images/testimonial-3.jpg',
-    name: 'Ethan Carter',
-    role: 'Web Developer',
-    quote:
-      "I got access to the @fibu beta and my first thought is that this is the intuitive UI/UX that task management apps have been lacking. It's truly a game changer!",
-  },
-  {
-    avatar: '/images/testimonial-4.jpg',
-    name: 'Mason Thompson',
-    role: 'Application Developer',
-    quote:
-      "After trying out the @fibu beta, I can confidently say this is the user-friendly UI/UX that task management has needed. It's a delightful experience!",
-  },
-  {
-    avatar: '/images/testimonial-5.jpg',
-    name: 'Noah Wilson',
-    role: 'Systems Architect',
-    quote:
-      "After joining the @fibu beta, I'm excited to experience this sleek UI/UX that task management truly needed. It's a welcome update!",
-  },
-  {
-    avatar: '/images/testimonial-6.jpg',
-    name: 'Sophia Bennett',
-    role: 'DevOps Engineer',
-    quote:
-      "I recently joined the @fibu beta and I must say, this is the kind of smooth UI/UX that task management tools have been missing. It's fantastic!",
-  },
-  {
-    avatar: '/images/testimonial-7.jpg',
-    name: 'Oliver Martinez',
-    role: 'Data Scientist',
-    quote:
-      'I’m now part of the @taskmaster beta and I can’t believe how this UI/UX transforms task management. It’s exactly what we’ve been looking for!',
-  },
-  {
-    avatar: '/images/testimonial-8.jpg',
-    name: 'Lucas Johnson',
-    role: 'UI/UX Designer',
-    quote:
-      'Having joined the @taskmaster beta, I’m thrilled to see this is the polished UI/UX that task management has been missing. It’s a refreshing change!',
-  },
-  {
-    avatar: '/images/testimonial-9.jpg',
-    name: 'Aiden Brown',
-    role: 'Technical Lead',
-    quote:
-      'I just signed up for the @taskmaster beta and I’m blown away by the sleek UI/UX. This is the kind of experience that task management apps have needed for a long time!',
-  },
-];
+// Real Play Store reviews. The card's secondary line, which used to carry an
+// invented job title, now shows the review date — that is the field the source
+// data actually has.
+import testimonials from '../data/testimonials.json';
+
+// Avatars come back sized for a 32px slot but the card renders them at 48, so
+// they land soft on any retina display. Google's size token is part of the URL,
+// so asking for 96px costs nothing but a wider fetch and covers 2x. Anything
+// that does not match the expected shape is passed through untouched.
+const avatarAt96 = (url: string) => url.replace(/=s\d+/, '=s96');
+
+// `<time datetime>` wants an ISO date. Built from the local date parts rather
+// than toISOString(), which would shift the day backwards for anyone building
+// east of UTC.
+const isoDate = (label: string): string | undefined => {
+  const parsed = new Date(label);
+  if (Number.isNaN(parsed.getTime())) return undefined;
+
+  const month = String(parsed.getMonth() + 1).padStart(2, '0');
+  const day = String(parsed.getDate()).padStart(2, '0');
+  return `${parsed.getFullYear()}-${month}-${day}`;
+};
 
 // The three former grid columns become three marquee rows, alternating direction
 // so the middle row counter-scrolls against the other two. Each row is rendered
 // twice back-to-back so translating the track by exactly -50%→0 loops seamlessly;
 // slightly different durations keep the rows from marching in lockstep.
-const rows = [
-  { items: testimonials.slice(0, 3), duration: '46s', reverse: false },
-  { items: testimonials.slice(3, 6), duration: '58s', reverse: true },
-  { items: testimonials.slice(6, 9), duration: '52s', reverse: false },
-];
+//
+// Those durations were tuned when a row held three cards. A row now holds a third
+// of 45, so a fixed duration would scroll five times faster — the same distance
+// covered in the same time. Holding seconds-per-card constant instead keeps the
+// original pace no matter how many reviews the JSON grows to.
+const BASE_DURATIONS = [46, 58, 52];
+const BASE_ROW_SIZE = 3;
+
+const perRow = Math.ceil(testimonials.length / 3);
+
+const rows = BASE_DURATIONS.map((base, i) => {
+  const items = testimonials.slice(i * perRow, (i + 1) * perRow);
+
+  return {
+    items,
+    duration: `${Math.round((base / BASE_ROW_SIZE) * items.length)}s`,
+    reverse: i === 1,
+  };
+}).filter((row) => row.items.length > 0);
 ---
 
 <section
@@ -119,23 +90,27 @@ const rows = [
             >
               <div class="flex items-center gap-4">
                 <img
-                  src={t.avatar}
+                  src={avatarAt96(t.avatar)}
                   alt={`Portrait of ${t.name}`}
                   class="size-12 shrink-0 rounded-[8px] object-cover"
                   width="48"
                   height="48"
                   loading="lazy"
+                  decoding="async"
+                  referrerpolicy="no-referrer"
                 />
                 <div class="flex flex-col justify-center gap-2">
                   <p class="text-[20px] font-semibold leading-[1.1] tracking-[-0.5px] text-white light:text-[#1c1512]">
                     {t.name}
                   </p>
-                  <p class="text-[14px] leading-[1.5] text-[#9e9e9e] light:text-[#737373]">{t.role}</p>
+                  <p class="text-[14px] leading-[1.5] text-[#9e9e9e] light:text-[#737373]">
+                    <time datetime={isoDate(t.date)}>{t.date}</time>
+                  </p>
                 </div>
               </div>
               <div class="w-full border-t border-[#2c2a2a] light:border-[#e8e1d7]"></div>
               <p class="font-geist text-[16px] leading-[1.7] tracking-[-0.3px] text-[#bebdbd] light:text-[#525252]">
-                {t.quote}
+                {t.review}
               </p>
             </article>
           ))}
