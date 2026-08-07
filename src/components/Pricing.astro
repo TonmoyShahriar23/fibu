@@ -159,6 +159,10 @@ const plans = [
             href="#start"
             class:list={[
               'cta-3d block w-full rounded-[16px] pb-1',
+              // Monthly's CTA opts out of the motion the shared .cta-3d gives it.
+              // Keyed to the plan name rather than the loop index so it stays on
+              // the right button if the two plans are ever reordered.
+              plan.name === 'Monthly' && 'btn-no-animation',
               plan.dark ? 'bg-[#bebdbd] light:bg-[#d4d4d4]' : 'bg-[#e77a00]',
             ]}
           >
@@ -216,6 +220,28 @@ const plans = [
     .cta-3d {
       animation: none;
     }
+  }
+
+  /* Monthly's CTA only: opt that one button out of the motion above, leaving the
+     shared `.cta-3d` rules — and so the Yearly button — exactly as they were.
+     Everything static is untouched; it just never moves.
+
+     Two properties do the work, on two different elements:
+       - the anchor carries the `cta-wave` rotation, so `animation` is cancelled
+         there (which also makes the :hover/:focus-visible pause rule moot);
+       - the face carries `transition-transform` + `active:translate-y-[2px]`,
+         and Tailwind v4 compiles that to the individual `translate` property
+         rather than `transform` — so `translate` is what has to be neutralised.
+         The `:active` selector is spelled out as well so the override outranks
+         Tailwind's own `.active\:translate-y-\[2px\]:active` rule. */
+  .cta-3d.btn-no-animation {
+    animation: none;
+  }
+
+  .cta-3d.btn-no-animation > span,
+  .cta-3d.btn-no-animation > span:active {
+    transition: none;
+    translate: none;
   }
 
   /* Start just past the viewport edge: half the screen plus half the card's own
