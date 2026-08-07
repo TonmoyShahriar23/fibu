@@ -4,16 +4,14 @@
 // the navbar and phone mockup. Backdrop divs are absolutely positioned against
 // the page shell, so this component must be rendered inside a `relative` container.
 
-// Headline is split per letter for the typewriter loop. Letters are grouped by
+// Headline is split per letter for the typewriter reveal. Letters are grouped by
 // word because each letter renders as an inline-block (transforms don't apply to
 // inline boxes) and a bare run of them would let a line break fall mid-word.
 //
-// Every letter runs the same infinite cycle (`--type-cycle` in the style block)
+// Every letter runs the same one-shot reveal (`type-in` in the style block)
 // offset by its own delay, which is what makes them land one after another. The
-// 48 letters here span 47 * 55ms = 2.6s of typing, and the cycle's trailing
-// hidden phase (38% of 9s = 3.4s) is longer than that, so the first letter never
-// retypes while the last is still clearing. Raising the stagger or the headline
-// length means raising the cycle to match.
+// 48 letters here type once on load over 47 * 55ms = 2.6s and then hold — the
+// animation never repeats, so nothing clears afterwards.
 const headline = "You've tried to learn to code before. This time it sticks.";
 const CHAR_STAGGER_MS = 55;
 let charIndex = 0;
@@ -148,38 +146,30 @@ const headlineWords = headline.split(" ").map((word) => ({
     filter: invert(1);
   }
 
-  /* Headline types one letter at a time, holds the full line, clears, repeats.
+  /* Headline types one letter at a time on load and then holds the full line.
      Each word is an inline-block so a line break can only land between words,
      never between two letters. */
-  .hero-headline {
-    --type-cycle: 9s;
-  }
-
   .hero-word {
     display: inline-block;
   }
 
-  /* steps(1, end) holds each keyframe's value until the next one, so letters cut
-     in and out instantly the way a typewriter strikes rather than fading.
-     `both` matters: without it a letter would sit visible through its delay and
-     then blink off when its animation finally started. */
+  /* Each letter is held hidden through its own stagger delay by the backwards
+     fill, then strikes and stays. The animation itself is instant, so the
+     letter cuts in the way a typewriter strikes rather than fading.
+     Deliberately NOT `forwards`/`both`: with no forwards fill the resting state
+     is the letter's own (opaque) style instead of a keyframe value, so nothing
+     depends on the animation's progress landing exactly on 1. It doesn't —
+     over a 1ms duration the delay/duration division loses enough precision that
+     progress tops out around 0.99999999999989, and a `steps()` easing would
+     floor that back to the hidden keyframe and strand the letter forever. */
   .hero-char {
     display: inline-block;
-    animation: type-loop var(--type-cycle) steps(1, end) infinite both;
+    animation: type-in 1ms backwards;
   }
 
-  /* 0-2%: waiting to be struck. 2%: appears. 62%: clears for the next pass. */
-  @keyframes type-loop {
-    0% {
-      opacity: 0;
-    }
-    2% {
-      opacity: 1;
-    }
-    62% {
-      opacity: 0;
-    }
-    100% {
+  /* No `to`: the end value is the letter's own opacity, i.e. fully visible. */
+  @keyframes type-in {
+    from {
       opacity: 0;
     }
   }
