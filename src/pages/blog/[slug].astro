@@ -2,26 +2,71 @@
 import type { GetStaticPaths } from 'astro';
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
-import PostHero from '../../components/PostHero.astro';
-import PostBody from '../../components/PostBody.astro';
-import MoreFromInsights from '../../components/MoreFromInsights.astro';
+import PostHero from '../../components/blog/PostHero.astro';
+import BlogContent from '../../components/blog/BlogContent.astro';
+import MoreFromInsights from '../../components/blog/MoreFromInsights.astro';
 import FinalCTA from '../../components/FinalCTA.astro';
 import Footer from '../../components/Footer.astro';
-import { posts, ARTICLE_AUTHOR, ARTICLE_DATE, ARTICLE_HERO } from '../../data/posts';
+import {
+  getAllPublishedBlogs,
+  getBlogBySlug,
+  authorName,
+  formatDate,
+  postDate,
+  type Blog,
+} from '../../lib/blog';
+import { excerptFor } from '../../lib/content';
 
-export const getStaticPaths = (() => {
-  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }));
+/** Stand-ins from the Figma frame, used when the API supplies neither. */
+const FALLBACK_HERO = '/images/post-hero.png';
+const FALLBACK_AVATAR = '/images/post-author.png';
+
+export const getStaticPaths = (async () => {
+  const listed = await getAllPublishedBlogs();
+
+  // The list endpoint already returns full rows, but the detail endpoint is the
+  // contract for a single post — fetching through it keeps this page rendering
+  // exactly what /api/blogs/slug/:slug serves. Responses are memoised in
+  // lib/blog.ts, so this costs one request per post.
+  const fetched = await Promise.all(
+    listed.map(async (summary) => {
+      const post = await getBlogBySlug(summary.slug);
+
+      if (!post) {
+        // One unavailable post must not take the whole build down with it.
+        console.warn(`[blog] skipping /blog/${summary.slug} — detail fetch failed`);
+        return null;
+      }
+
+      return post;
+    }),
+  );
+
+  const posts = fetched.filter((post): post is Blog => post !== null);
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post, siblings: posts },
+  }));
 }) satisfies GetStaticPaths;
 
-const { post } = Astro.props;
+interface Props {
+  post: Blog;
+  siblings: Blog[];
+}
+
+const { post, siblings } = Astro.props;
 
 const site = Astro.site;
 const abs = (path: string) => (site ? new URL(path, site).href : path);
 
-// Figma supplies one article body, which every post shares. The description is
-// derived from that shared opening rather than invented per post.
-const description =
-  'Four common challenges learners face — information overload, inconsistent habits, the gap between theory and execution, and skill plateaus — with practical strategies for each.';
+const iso = postDate(post);
+const dateLabel = formatDate(iso);
+const author = authorName(post);
+const heroImage = post.featuredImage?.trim() || FALLBACK_HERO;
+const avatar = post.author?.avatarUrl?.trim() || FALLBACK_AVATAR;
+
+const description = post.metaDescription?.trim() || excerptFor(post, 155) || `${post.title} — from the Fibu blog.`;
 
 const postSchema = {
   '@context': 'https://schema.org',
@@ -30,10 +75,11 @@ const postSchema = {
   headline: post.title,
   description,
   url: abs(`/blog/${post.slug}`),
-  image: abs(ARTICLE_HERO),
-  datePublished: ARTICLE_DATE.iso,
+  image: heroImage.startsWith('http') ? heroImage : abs(heroImage),
+  datePublished: iso ?? undefined,
+  dateModified: post.updatedAt ?? iso ?? undefined,
   inLanguage: 'en',
-  author: { '@type': 'Person', name: ARTICLE_AUTHOR.name, jobTitle: ARTICLE_AUTHOR.role },
+  author: { '@type': 'Person', name: author },
   publisher: { '@id': `${site?.origin ?? ''}/#organization` },
   isPartOf: { '@id': `${site?.origin ?? ''}/blog#blog` },
   mainEntityOfPage: abs(`/blog/${post.slug}`),
@@ -50,7 +96,7 @@ const breadcrumbSchema = {
 };
 ---
 
-<Layout title={`${post.title} — Fibu`} description={description} image={ARTICLE_HERO}>
+<Layout title={`${post.metaTitle?.trim() || post.title} — Fibu`} description={description} image={heroImage}>
   <a
     href="#main"
     class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[12px] focus:bg-[#ff952d] focus:px-4 focus:py-2 focus:text-[16px] focus:font-bold focus:text-[#0a0a0a]"
@@ -69,10 +115,22 @@ const breadcrumbSchema = {
 
     <main id="main" tabindex="-1" class="-mt-[105px]">
       <article>
-        <PostHero title={post.title} />
-        <PostBody />
+        <PostHero
+          title={post.title}
+          dateIso={iso}
+          dateLabel={dateLabel}
+          author={author}
+          authorAvatar={avatar}
+          image={heroImage}
+        />
+
+        <!-- 808px reading column, per Figma 14547:32136. -->
+        <div class="mx-auto mt-16 w-full max-w-[808px] px-4 sm:mt-20">
+          <BlogContent content={post.content} />
+        </div>
       </article>
-      <MoreFromInsights currentSlug={post.slug} />
+
+      <MoreFromInsights posts={siblings} currentSlug={post.slug} />
       <FinalCTA />
     </main>
     <Footer />

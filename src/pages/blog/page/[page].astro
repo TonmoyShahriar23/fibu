@@ -1,0 +1,87 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Layout from '../../../layouts/Layout.astro';
+import Navbar from '../../../components/Navbar.astro';
+import BlogHero from '../../../components/blog/BlogHero.astro';
+import BlogListSection from '../../../components/blog/BlogListSection.astro';
+import FinalCTA from '../../../components/FinalCTA.astro';
+import Footer from '../../../components/Footer.astro';
+import { getBlogs, POSTS_PER_PAGE, type Blog } from '../../../lib/blog';
+
+// Pages 2..N of the listing. Page 1 stays at /blog so the canonical listing URL
+// has no page number, which is why this route starts at 2.
+export const getStaticPaths = (async () => {
+  const { total } = await getBlogs({ skip: 0, take: POSTS_PER_PAGE, isPublished: true });
+  const totalPages = Math.ceil(total / POSTS_PER_PAGE);
+
+  // Nothing to emit when everything fits on the first page — including when the
+  // API was unreachable and reported a total of 0.
+  if (totalPages < 2) return [];
+
+  const pages = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+
+  const routes = await Promise.all(
+    pages.map(async (page) => {
+      const { data } = await getBlogs({
+        skip: (page - 1) * POSTS_PER_PAGE,
+        take: POSTS_PER_PAGE,
+        isPublished: true,
+        orderBy: 'publishedAt',
+        orderDirection: 'desc',
+      });
+
+      return { params: { page: String(page) }, props: { posts: data, total, page } };
+    }),
+  );
+
+  // A page whose fetch failed would render an empty grid mid-sequence, which
+  // reads as broken; dropping it is the better failure.
+  return routes.filter((route) => route.props.posts.length > 0);
+}) satisfies GetStaticPaths;
+
+interface Props {
+  posts: Blog[];
+  total: number;
+  page: number;
+}
+
+const { posts, total, page } = Astro.props;
+
+const site = Astro.site;
+const abs = (path: string) => (site ? new URL(path, site).href : path);
+
+const title = `Blog & Insights — Page ${page} — Fibu`;
+const description =
+  'Practical guides on building a coding habit that lasts: how to learn faster, stay motivated, and turn what you know into real-world skills.';
+
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: abs('/') },
+    { '@type': 'ListItem', position: 2, name: 'Blog', item: abs('/blog') },
+    { '@type': 'ListItem', position: 3, name: `Page ${page}`, item: abs(`/blog/page/${page}`) },
+  ],
+};
+---
+
+<Layout title={title} description={description}>
+  <a
+    href="#main"
+    class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-[12px] focus:bg-[#ff952d] focus:px-4 focus:py-2 focus:text-[16px] focus:font-bold focus:text-[#0a0a0a]"
+  >
+    Skip to main content
+  </a>
+
+  <div class="relative min-h-screen overflow-x-clip bg-black text-white light:bg-white light:text-[#1c1512]">
+    <Navbar />
+    <main id="main" tabindex="-1">
+      <BlogHero />
+      <BlogListSection posts={posts} total={total} page={page} perPage={POSTS_PER_PAGE} />
+      <FinalCTA />
+    </main>
+    <Footer />
+  </div>
+
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />
+</Layout>

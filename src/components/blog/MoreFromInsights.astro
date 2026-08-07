@@ -1,0 +1,46 @@
+---
+// "More From Fibu Insights" row from Figma 14547:32172 — a 64px pixel heading over
+// three of the same blog cards the listing uses, on the 1224px content column
+// with 24px gutters.
+//
+// The caller passes the candidate posts; the current one is filtered out here so
+// the row never links back to the page you are already reading. With fewer than
+// two posts published there is nothing to show, and the section renders nothing
+// rather than an empty heading.
+import type { Blog } from '../../lib/blog';
+import BlogCard from './BlogCard.astro';
+
+interface Props {
+  posts: Blog[];
+  currentSlug: string;
+}
+
+const { posts, currentSlug } = Astro.props;
+
+const others = posts.filter((post) => post.slug !== currentSlug);
+
+// Start from the post after the current one so each article leads somewhere
+// different, wrapping around the end of the list.
+const index = posts.findIndex((post) => post.slug === currentSlug);
+const rotated = index >= 0 ? [...others.slice(index), ...others.slice(0, index)] : others;
+const related = rotated.slice(0, 3);
+---
+
+{
+  related.length > 0 && (
+    <section aria-labelledby="more-insights-heading" class="relative z-10 mx-auto mt-[120px] w-full max-w-[1224px] px-4">
+      <h2
+        id="more-insights-heading"
+        class="heading-gradient font-pixel text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
+      >
+        More From Fibu Insights
+      </h2>
+
+      <ul class="mt-12 grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3">
+        {related.map((post) => (
+          <BlogCard post={post} />
+        ))}
+      </ul>
+    </section>
+  )
+}

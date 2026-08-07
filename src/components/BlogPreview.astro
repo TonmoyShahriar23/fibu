@@ -6,39 +6,49 @@
 // Blog Listing page, so nothing is derived or invented here.
 //
 // Figma spacing: 48px heading -> content, 40px cards -> button, 24px gutters.
-// The cards are the first three posts, which is what the design shows; they are
-// read from posts.ts so read times stay consistent with /blog rather than the
-// stale "22 hours ago" this frame still carries.
-import BlogCard from './BlogCard.astro';
-import { posts } from '../data/posts';
+// The three newest published posts come from the same API the /blog listing
+// reads, so the landing page can never advertise a post that listing does not
+// have. The whole section is skipped when there is nothing to show.
+import BlogCard from './blog/BlogCard.astro';
+import { getBlogs } from '../lib/blog';
 
-const previewPosts = posts.slice(0, 3);
+const { data: previewPosts } = await getBlogs({
+  skip: 0,
+  take: 3,
+  isPublished: true,
+  orderBy: 'publishedAt',
+  orderDirection: 'desc',
+});
 ---
 
-<section
-  id="blog"
-  aria-labelledby="blog-heading"
-  class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[1224px] flex-col items-center gap-12 px-4"
->
-  <h2
-    id="blog-heading"
-    class="heading-gradient font-pixel text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
-  >
-    Ideas, Insights & Inspiration
-  </h2>
-
-  <div class="flex w-full flex-col items-center gap-10">
-    <ul class="grid w-full list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3">
-      {previewPosts.map((post) => <BlogCard post={post} />)}
-    </ul>
-
-    <!-- Same 3D press treatment as the navbar's "Start Free" button. -->
-    <a href="/blog" class="block rounded-[16px] bg-[#e77a00] pb-[4px]">
-      <span
-        class="font-satoshi flex h-12 items-center justify-center whitespace-nowrap rounded-[16px] bg-[#ff952d] px-6 text-center text-[16px] font-bold leading-[22px] text-[#0a0a0a] transition-transform duration-100 active:translate-y-[2px]"
+{
+  previewPosts.length > 0 && (
+    <section
+      id="blog"
+      aria-labelledby="blog-heading"
+      class="relative z-10 mx-auto mt-[120px] flex w-full max-w-[1224px] flex-col items-center gap-12 px-4"
+    >
+      <h2
+        id="blog-heading"
+        class="heading-gradient font-pixel text-center text-[40px] uppercase leading-[0.9] sm:text-[52px] xl:text-[64px]"
       >
-        See more blogs
-      </span>
-    </a>
-  </div>
-</section>
+        Ideas, Insights & Inspiration
+      </h2>
+
+      <div class="flex w-full flex-col items-center gap-10">
+        <ul class="grid w-full list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3">
+          {previewPosts.map((post) => (
+            <BlogCard post={post} />
+          ))}
+        </ul>
+
+        {/* Same 3D press treatment as the navbar's "Start Free" button. */}
+        <a href="/blog" class="block rounded-[16px] bg-[#e77a00] pb-[4px]">
+          <span class="font-satoshi flex h-12 items-center justify-center whitespace-nowrap rounded-[16px] bg-[#ff952d] px-6 text-center text-[16px] font-bold leading-[22px] text-[#0a0a0a] transition-transform duration-100 active:translate-y-[2px]">
+            See more blogs
+          </span>
+        </a>
+      </div>
+    </section>
+  )
+}

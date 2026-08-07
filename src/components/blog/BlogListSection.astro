@@ -1,0 +1,124 @@
+---
+// Blog listing grid from Figma 14547:13407 — a 1224px content column holding
+// 3 x 392px cards with 24px gutters, under the "Latest blog/insights" pixel
+// heading (14552:660).
+//
+// Shared by /blog and /blog/page/[page] so both render an identical grid; the
+// pagination strip below it is the only thing that differs. The design has no
+// pagination control of its own, so the buttons reuse the site's 3D press
+// treatment from the navbar CTA rather than inventing a new idiom.
+import type { Blog } from '../../lib/blog';
+import BlogCard from './BlogCard.astro';
+
+interface Props {
+  posts: Blog[];
+  /** Total published posts across all pages, used to size the pager. */
+  total: number;
+  page: number;
+  perPage: number;
+}
+
+const { posts, total, page, perPage } = Astro.props;
+
+const totalPages = Math.max(1, Math.ceil(total / perPage));
+const hasPagination = totalPages > 1;
+
+const href = (target: number) => (target <= 1 ? '/blog' : `/blog/page/${target}`);
+
+// A compact window around the current page keeps the strip from growing
+// unbounded: first and last are always reachable, with gaps elided.
+const windowed = new Set<number>([1, totalPages, page, page - 1, page + 1]);
+const pageNumbers = [...windowed].filter((n) => n >= 1 && n <= totalPages).sort((a, b) => a - b);
+
+const items: (number | 'gap')[] = [];
+pageNumbers.forEach((n, i) => {
+  if (i > 0 && n - pageNumbers[i - 1] > 1) items.push('gap');
+  items.push(n);
+});
+
+// Same shell/face split the navbar CTA uses: the shell is the shadow colour the
+// face presses down onto. The face comes in two widths — a padded one for the
+// prev/next labels and a square one for page numbers — kept as separate strings
+// so neither needs an `!important` override to undo the other's padding.
+const navShell = 'rounded-[16px] bg-[#2c2a2a] pb-1 light:bg-[#dedddd]';
+
+const navFaceBase = [
+  'flex h-12 items-center justify-center whitespace-nowrap rounded-[16px] border',
+  'font-satoshi text-[16px] font-bold leading-[22px] transition-transform duration-100',
+  'border-[#2c2a2a] bg-[#161616] text-white active:translate-y-[2px]',
+  'light:border-[#dedddd] light:bg-white light:text-[#030003]',
+].join(' ');
+
+const navFaceLabel = `${navFaceBase} px-5`;
+const navFaceNumber = `${navFaceBase} w-12`;
+---
+
+<section id="blog-list" aria-labelledby="blog-list-heading" class="relative z-10 mx-auto mt-6 w-full max-w-[1224px] px-4">
+  <h2
+    id="blog-list-heading"
+    class="heading-gradient font-pixel text-[40px] uppercase leading-none sm:text-[52px] xl:text-[64px]"
+  >
+    Latest blog/insights
+  </h2>
+
+  {
+    posts.length > 0 ? (
+      <ul class="mt-6 grid list-none grid-cols-1 gap-6 p-0 md:grid-cols-2 lg:grid-cols-3">
+        {posts.map((post, i) => (
+          <BlogCard post={post} eager={page === 1 && i < 3} />
+        ))}
+      </ul>
+    ) : (
+      <div class="mt-10 rounded-[24px] border border-[#2c2a2a] bg-[#161616] px-6 py-16 text-center light:border-[#dedddd] light:bg-[#f7f6f4]">
+        <p class="text-[20px] font-medium leading-[1.4] text-white light:text-[#0a0915]">
+          No posts published yet
+        </p>
+        <p class="mt-2 text-[16px] leading-[1.6] text-[#7e7e7e] light:text-[#52525a]">
+          New writing on learning to code lands here regularly — check back soon.
+        </p>
+      </div>
+    )
+  }
+
+  {
+    hasPagination && (
+      <nav class="mt-12 flex flex-wrap items-center justify-center gap-2" aria-label="Blog pagination">
+        {page > 1 && (
+          <a href={href(page - 1)} rel="prev" class={navShell}>
+            <span class={navFaceLabel}>Previous</span>
+          </a>
+        )}
+
+        <ul class="flex list-none flex-wrap items-center gap-2 p-0">
+          {items.map((item) =>
+            item === 'gap' ? (
+              <li aria-hidden="true" class="px-1 text-[16px] text-[#7e7e7e] light:text-[#52525a]">
+                &hellip;
+              </li>
+            ) : (
+              <li>
+                {item === page ? (
+                  <span class="rounded-[16px] bg-[#e77a00] pb-1" aria-current="page">
+                    <span class="font-satoshi flex size-12 items-center justify-center rounded-[16px] border border-[#ff952d] bg-[#ff952d] text-[16px] font-bold leading-[22px] text-[#030003]">
+                      {item}
+                    </span>
+                  </span>
+                ) : (
+                  <a href={href(item)} class={navShell} aria-label={`Page ${item}`}>
+                    <span class={navFaceNumber}>{item}</span>
+                  </a>
+                )}
+              </li>
+            ),
+          )}
+        </ul>
+
+        {page < totalPages && (
+          <a href={href(page + 1)} rel="next" class={navShell}>
+            <span class={navFaceLabel}>Next</span>
+          </a>
+        )}
+      </nav>
+    )
+  }
+</section>

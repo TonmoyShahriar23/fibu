@@ -1,0 +1,232 @@
+---
+// Article body for a post page. Typography follows the Figma single-post reading
+// column (nodes 14547:32136 / 14547:32138): an 808px measure, 20px Inter body at
+// 1.8 leading, 32px section headings, 24px Geist sub-headings and 48px between
+// blocks.
+//
+// The HTML handed to `set:html` is built by src/lib/content.ts, which walks the
+// stored TipTap document and escapes every author-supplied string. Nothing here
+// forwards raw markup from the API — see that file for the reasoning.
+//
+// Styles are `is:global` because Astro's scoping cannot reach nodes injected via
+// `set:html`; every selector is namespaced under `.blog-content` to contain them.
+import { renderContent } from '../../lib/content';
+
+interface Props {
+  content: string | null;
+  class?: string;
+}
+
+const { content, class: className = '' } = Astro.props;
+
+const html = renderContent(content);
+---
+
+{
+  html ? (
+    <div class:list={['blog-content', className]} set:html={html} />
+  ) : (
+    <p class={`text-[18px] leading-[1.8] opacity-70 ${className}`}>
+      This post has no content yet.
+    </p>
+  )
+}
+
+<style is:global>
+  .blog-content {
+    font-size: 17px;
+    line-height: 1.8;
+    color: #ffffff;
+  }
+
+  .light .blog-content {
+    color: #1c1512;
+  }
+
+  @media (min-width: 640px) {
+    .blog-content {
+      font-size: 20px;
+    }
+  }
+
+  /* Figma spacing: 48px between top-level blocks, tightened after a heading so a
+     heading stays visually attached to the text it introduces. */
+  .blog-content > * + * {
+    margin-top: 32px;
+  }
+
+  .blog-content > h2 + *,
+  .blog-content > h3 + *,
+  .blog-content > h4 + * {
+    margin-top: 16px;
+  }
+
+  .blog-content p {
+    opacity: 0.7;
+  }
+
+  .blog-content h2,
+  .blog-content h3,
+  .blog-content h4,
+  .blog-content h5,
+  .blog-content h6 {
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  .blog-content > h2,
+  .blog-content > h3,
+  .blog-content > h4 {
+    margin-top: 48px;
+  }
+
+  .blog-content h2 {
+    font-size: 26px;
+    line-height: 1.3;
+    letter-spacing: -1.5px;
+  }
+
+  .blog-content h3 {
+    font-family: var(--font-geist);
+    font-size: 22px;
+    line-height: 1.4;
+    letter-spacing: -0.8px;
+  }
+
+  .blog-content h4,
+  .blog-content h5,
+  .blog-content h6 {
+    font-family: var(--font-geist);
+    font-size: 19px;
+    line-height: 1.5;
+    letter-spacing: -0.4px;
+  }
+
+  @media (min-width: 640px) {
+    .blog-content h2 {
+      font-size: 32px;
+    }
+
+    .blog-content h3 {
+      font-size: 24px;
+    }
+
+    .blog-content h4,
+    .blog-content h5,
+    .blog-content h6 {
+      font-size: 20px;
+    }
+  }
+
+  .blog-content strong {
+    font-weight: 600;
+    letter-spacing: -0.2px;
+    opacity: 1;
+  }
+
+  .blog-content a {
+    color: #ff952d;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .blog-content a:hover {
+    color: #e77a00;
+  }
+
+  .blog-content ul,
+  .blog-content ol {
+    padding-left: 30px;
+    opacity: 0.7;
+  }
+
+  .blog-content ul {
+    list-style: disc;
+  }
+
+  .blog-content ol {
+    list-style: decimal;
+  }
+
+  .blog-content li {
+    line-height: 1.7;
+  }
+
+  .blog-content li + li {
+    margin-top: 8px;
+  }
+
+  /* List items wrap their text in a paragraph, which would otherwise stack the
+     0.7 opacity on top of the list's own and double-dim the text. */
+  .blog-content li p {
+    opacity: 1;
+    margin: 0;
+  }
+
+  .blog-content li > ul,
+  .blog-content li > ol {
+    margin-top: 8px;
+    opacity: 1;
+  }
+
+  .blog-content blockquote {
+    border-left: 3px solid #ff952d;
+    padding-left: 20px;
+    font-style: italic;
+  }
+
+  .blog-content pre {
+    background: #161616;
+    border: 1px solid #2c2a2a;
+    border-radius: 16px;
+    padding: 20px;
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .light .blog-content pre {
+    background: #f7f6f4;
+    border-color: #dedddd;
+  }
+
+  .blog-content pre code {
+    font-family: var(--font-fira);
+    background: none;
+    padding: 0;
+    white-space: pre;
+  }
+
+  /* Inline code only — the `pre code` rule above resets the block variant. */
+  .blog-content code {
+    font-family: var(--font-fira);
+    font-size: 0.9em;
+    background: #161616;
+    border-radius: 6px;
+    padding: 2px 6px;
+  }
+
+  .light .blog-content code {
+    background: #f0efed;
+  }
+
+  .blog-content img {
+    width: 100%;
+    height: auto;
+    border-radius: 24px;
+  }
+
+  .blog-content hr {
+    border: 0;
+    border-top: 1px solid #2c2a2a;
+  }
+
+  .light .blog-content hr {
+    border-top-color: #dedddd;
+  }
+
+  /* A long URL or identifier should scroll its own code block, never widen the page. */
+  .blog-content :where(p, li, h2, h3, h4) {
+    overflow-wrap: break-word;
+  }
+</style>

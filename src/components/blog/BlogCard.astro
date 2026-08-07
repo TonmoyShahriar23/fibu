@@ -1,0 +1,133 @@
+---
+// Blog card from Figma 14547:13408 (dark) / 14544:963 (light). Used by the listing
+// grid, the "More From Fibu Insights" row on a post page, and the landing-page
+// preview — the design reuses the identical component in all three places.
+//
+// Renders an <li>, so it must be placed inside a <ul>.
+//
+// The design's meta line is a relative timestamp ("22 hours ago"). The excerpt
+// line below the title is not in the Figma frame; it is here because the brief
+// asks the card to surface one, and it sits in the gap the design already leaves
+// between the title and the meta box rather than altering that structure.
+import type { Blog } from '../../lib/blog';
+import { authorName, postDate, postImage, relativeTime } from '../../lib/blog';
+import { excerptFor } from '../../lib/content';
+
+interface Props {
+  post: Blog;
+  /** Above-the-fold cards skip lazy-loading so they are not deprioritised. */
+  eager?: boolean;
+}
+
+const { post, eager = false } = Astro.props;
+
+const date = postDate(post);
+const excerpt = excerptFor(post, 110);
+---
+
+<li>
+  <a
+    href={`/blog/${post.slug}`}
+    class="group flex h-full flex-col gap-4 overflow-hidden rounded-[24px] bg-[#161616] pb-5 transition-transform duration-200 hover:-translate-y-1 light:bg-[#f7f6f4]"
+  >
+    <img
+      src={postImage(post)}
+      alt=""
+      width="784"
+      height="440"
+      class="h-[220px] w-full shrink-0 object-cover"
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'auto' : 'low'}
+      decoding="async"
+    />
+
+    <div class="flex flex-1 flex-col justify-between gap-4 px-4">
+      <div class="flex flex-col gap-2">
+        <h3 class="line-clamp-3 text-[20px] font-medium leading-[1.4] tracking-[-0.3px] text-white light:text-[#0a0915]">
+          {post.title}
+        </h3>
+
+        {
+          excerpt && (
+            <p class="line-clamp-2 text-[14px] leading-[1.6] tracking-[-0.2px] text-[#7e7e7e] light:text-[#52525a]">
+              {excerpt}
+            </p>
+          )
+        }
+      </div>
+
+      <div
+        class="flex items-center gap-2 rounded-[16px] border border-[#2c2a2a] bg-[#161616] px-4 py-2 shadow-[0_4px_0_0_#2c2a2a] light:border-[#bebdbd] light:bg-[#f7f6f4] light:shadow-[0_4px_0_0_#bebdbd]"
+      >
+        <span class="flex min-w-0 flex-1 flex-col text-[14px] leading-[1.8] tracking-[-0.2px]">
+          {
+            date ? (
+              <time
+                datetime={date}
+                data-relative-time
+                class="font-medium text-white light:text-[#030003]"
+              >
+                {relativeTime(date)}
+              </time>
+            ) : (
+              <span class="font-medium text-white light:text-[#030003]">Fibu Insights</span>
+            )
+          }
+          <span class="truncate text-[#7e7e7e] light:text-[#52525a]">by {authorName(post)}</span>
+        </span>
+
+        <span class="grid size-6 shrink-0 place-items-center" aria-hidden="true">
+          <img
+            src="/images/blog-arrow-dark.svg"
+            alt=""
+            class="col-start-1 row-start-1 h-[13.5px] w-[7.3px] transition-transform duration-200 group-hover:translate-x-0.5 light:hidden"
+            loading="lazy"
+          />
+          <img
+            src="/images/blog-arrow-light.svg"
+            alt=""
+            class="col-start-1 row-start-1 hidden h-[13.5px] w-[7.3px] transition-transform duration-200 group-hover:translate-x-0.5 light:block"
+            loading="lazy"
+          />
+        </span>
+      </div>
+    </div>
+  </a>
+</li>
+
+<script>
+  // The site is statically generated, so a relative timestamp is frozen at build
+  // time and drifts until the next deploy. The server-rendered value is what
+  // crawlers and non-JS visitors get; this recomputes it from the machine-readable
+  // `datetime` attribute so a live visitor always sees an accurate one.
+  //
+  // Astro bundles this once no matter how many cards are on the page.
+  const UNITS: [Intl.RelativeTimeFormatUnit, number][] = [
+    ['year', 365 * 24 * 60 * 60 * 1000],
+    ['month', 30 * 24 * 60 * 60 * 1000],
+    ['day', 24 * 60 * 60 * 1000],
+    ['hour', 60 * 60 * 1000],
+    ['minute', 60 * 1000],
+  ];
+
+  const formatter = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+
+  for (const element of document.querySelectorAll<HTMLTimeElement>('time[data-relative-time]')) {
+    const iso = element.getAttribute('datetime');
+    if (!iso) continue;
+
+    const time = new Date(iso).getTime();
+    if (Number.isNaN(time)) continue;
+
+    const diff = time - Date.now();
+    const absolute = Math.abs(diff);
+
+    if (absolute < 60_000) {
+      element.textContent = 'just now';
+      continue;
+    }
+
+    const unit = UNITS.find(([, ms]) => absolute >= ms);
+    if (unit) element.textContent = formatter.format(Math.round(diff / unit[1]), unit[0]);
+  }
+</script>
