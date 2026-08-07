@@ -45,19 +45,37 @@ const headlineWords = headline.split(" ").map((word) => ({
   <div class="hero-light-glow absolute inset-x-0 top-0 h-[900px]"></div>
 </div>
 
-<!-- floating pixel planets (above the phone mockup, like in Figma) -->
-<div class="pointer-events-none absolute inset-x-0 top-0 z-20 hidden md:block" aria-hidden="true">
-  <span class="planet absolute top-[185px] block h-16 w-[63px]" style="left: calc(50% - 491px);">
-    <img src="/images/planet-4.png" alt="" class="planet-spin block size-full" />
+<!-- floating pixel planets (above the phone mockup, like in Figma)
+
+     Three nested elements, one transform each, so none of them fight:
+       .planet-anchor  absolute placement + the cursor-repel offset (JS)
+       .planet         idle bob + rock (`translate`/`rotate` properties)
+       .planet-spin    continuous 360 spin
+     The repel deliberately sits on its own wrapper rather than on .planet:
+     individual `translate`/`rotate` properties are applied BEFORE `transform`
+     in the same element's matrix, so a repel written to .planet's `transform`
+     would be rotated by the sway and push off-axis by up to 14deg. Nesting
+     composes the two cleanly instead. -->
+<div class="pointer-events-none absolute inset-x-0 top-0 z-20 hidden md:block" aria-hidden="true" data-planet-field>
+  <span class="planet-anchor absolute top-[185px] block h-16 w-[63px]" style="left: calc(50% - 491px);">
+    <span class="planet block size-full">
+      <img src="/images/planet-4.png" alt="" class="planet-spin block size-full" />
+    </span>
   </span>
-  <span class="planet absolute top-[241px] block h-[60px] w-[57px]" style="left: calc(50% + 487px); animation-delay: -0.43s;">
-    <img src="/images/planet-3.png" alt="" class="planet-spin block size-full" style="animation-delay: -1.2s;" />
+  <span class="planet-anchor absolute top-[241px] block h-[60px] w-[57px]" style="left: calc(50% + 487px);">
+    <span class="planet block size-full" style="animation-delay: -0.43s;">
+      <img src="/images/planet-3.png" alt="" class="planet-spin block size-full" style="animation-delay: -1.2s;" />
+    </span>
   </span>
-  <span class="planet absolute top-[646px] block size-20" style="left: calc(50% - 588px); animation-delay: -0.86s;">
-    <img src="/images/planet-1.png" alt="" class="planet-spin block size-full" style="animation-delay: -2.4s;" />
+  <span class="planet-anchor absolute top-[646px] block size-20" style="left: calc(50% - 588px);">
+    <span class="planet block size-full" style="animation-delay: -0.86s;">
+      <img src="/images/planet-1.png" alt="" class="planet-spin block size-full" style="animation-delay: -2.4s;" />
+    </span>
   </span>
-  <span class="planet absolute top-[630px] block size-[89px]" style="left: calc(50% + 532px); animation-delay: -0.21s;">
-    <img src="/images/planet-2.png" alt="" class="planet-spin block size-full" style="animation-delay: -3.6s;" />
+  <span class="planet-anchor absolute top-[630px] block size-[89px]" style="left: calc(50% + 532px);">
+    <span class="planet block size-full" style="animation-delay: -0.21s;">
+      <img src="/images/planet-2.png" alt="" class="planet-spin block size-full" style="animation-delay: -3.6s;" />
+    </span>
   </span>
 </div>
 
@@ -186,6 +204,15 @@ const headlineWords = headline.split(" ").map((word) => ({
       );
   }
 
+  /* Carries only the cursor-repel offset, written by the script below as a
+     `transform`. The transition is what makes the planet drift out of the
+     cursor's way and settle back home instead of snapping — it covers both
+     directions, so the return needs no separate handling. */
+  .planet-anchor {
+    transition: transform 0.3s ease-out;
+    will-change: transform;
+  }
+
   /* Two rotations can't share one element (the later animation would win the
      `rotate` property), so the wrapper does the bob + left-right rock and the
      image inside does the continuous 360° spin. `translate`/`rotate` are used
@@ -235,5 +262,205 @@ const headlineWords = headline.split(" ").map((word) => ({
     .hero-char {
       animation: none;
     }
+
+    /* The script opts out entirely under reduced motion; this is the belt-and-
+       braces half, so nothing animates even if a transform were ever set. */
+    .planet-anchor {
+      transition: none;
+    }
   }
 </style>
+
+<script>
+  // Cursor repel: planets drift out of the way as the pointer nears them, then
+  // ease back once it leaves. The offset is written to .planet-anchor's
+  // `transform`; the idle bob/rock/spin live on the nested elements and are
+  // never touched, so the two compose instead of overwriting each other.
+
+  /** Distance at which a planet starts reacting. */
+  const RADIUS = 180;
+  /** Offset at the point of closest approach. */
+  const MAX_PUSH = 90;
+  /** How close a pushed planet may get to the viewport edge. */
+  const EDGE_MARGIN = 8;
+
+  const field = document.querySelector<HTMLElement>('[data-planet-field]');
+
+  // Pointless on touch (no hovering cursor to flee), and unwanted when the
+  // visitor has asked for less motion.
+  const wantsMotion =
+    matchMedia('(hover: hover) and (pointer: fine)').matches &&
+    !matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (field && wantsMotion) {
+    const planets = [...field.querySelectorAll<HTMLElement>('.planet-anchor')].map((el) => ({
+      el,
+      // Resting centre in document space, filled in by measure().
+      cx: 0,
+      cy: 0,
+      // Half the layout box, so the clamp can reason about the planet's edges.
+      hw: 0,
+      hh: 0,
+      // Offset currently written to the DOM.
+      x: 0,
+      y: 0,
+    }));
+
+    // Viewport size, cached alongside the centres — only a resize changes it.
+    let viewW = 0;
+    let viewH = 0;
+
+    let pointerX = 0;
+    let pointerY = 0;
+    // Two independent rAF handles: sharing one would let a pending re-measure
+    // swallow the next pointer frame, and the effect would stop dead.
+    let frame = 0;
+    let measureFrame = 0;
+
+    /**
+     * Resting centre of each planet, in document coordinates.
+     *
+     * Walks offsetParent rather than using getBoundingClientRect: offset* are
+     * layout values, so they ignore both the repel transform we just wrote and
+     * the idle bob/rock. A rect would fold all of that in and feed our own
+     * output back into the next frame's input.
+     */
+    const measure = () => {
+      for (const planet of planets) {
+        let x = 0;
+        let y = 0;
+
+        for (let node: HTMLElement | null = planet.el; node; node = node.offsetParent as HTMLElement | null) {
+          x += node.offsetLeft;
+          y += node.offsetTop;
+        }
+
+        planet.hw = planet.el.offsetWidth / 2;
+        planet.hh = planet.el.offsetHeight / 2;
+        planet.cx = x + planet.hw;
+        planet.cy = y + planet.hh;
+      }
+
+      viewW = document.documentElement.clientWidth;
+      viewH = document.documentElement.clientHeight;
+    };
+
+    const apply = () => {
+      frame = 0;
+
+      const scrollX = window.scrollX;
+      const scrollY = window.scrollY;
+      const mouseX = pointerX + scrollX;
+      const mouseY = pointerY + scrollY;
+
+      for (const planet of planets) {
+        // Vector from cursor to planet — the direction it should flee.
+        const dx = planet.cx - mouseX;
+        const dy = planet.cy - mouseY;
+        const distance = Math.hypot(dx, dy);
+
+        let tx = 0;
+        let ty = 0;
+
+        // The `> 0` guard keeps a cursor exactly on centre from dividing by zero.
+        if (distance < RADIUS && distance > 0) {
+          const push = (1 - distance / RADIUS) * MAX_PUSH;
+          tx = (dx / distance) * push;
+          ty = (dy / distance) * push;
+
+          // A 90px shove is enough to carry a planet off the edge on a narrower
+          // window — at 1024px the top-left planet rests about 20px from the
+          // left. Clamp so it can slide up to the margin and stop there, which
+          // reads as the planet hugging the edge rather than escaping the page.
+          //
+          // `Math.min(edge, MARGIN)` is what keeps this from *fixing* the
+          // layout: planets that already rest off-screen at narrow widths stay
+          // exactly where the design puts them instead of being dragged inward.
+          const left = planet.cx - scrollX - planet.hw;
+          const right = planet.cx - scrollX + planet.hw;
+          const top = planet.cy - scrollY - planet.hh;
+          const bottom = planet.cy - scrollY + planet.hh;
+
+          tx = Math.min(Math.max(tx, Math.min(left, EDGE_MARGIN) - left), Math.max(right, viewW - EDGE_MARGIN) - right);
+          ty = Math.min(Math.max(ty, Math.min(top, EDGE_MARGIN) - top), Math.max(bottom, viewH - EDGE_MARGIN) - bottom);
+        }
+
+        const atRest = tx === 0 && ty === 0;
+        const wasAtRest = planet.x === 0 && planet.y === 0;
+
+        // Skip writes nobody can see, but always write the frame that returns a
+        // planet to exactly zero so it does not strand a fraction of a pixel out.
+        if (atRest && wasAtRest) continue;
+        if (!atRest && Math.abs(tx - planet.x) < 0.5 && Math.abs(ty - planet.y) < 0.5) continue;
+
+        planet.x = tx;
+        planet.y = ty;
+        planet.el.style.transform = atRest ? '' : `translate(${tx.toFixed(2)}px, ${ty.toFixed(2)}px)`;
+      }
+    };
+
+    const onPointerMove = (event: MouseEvent) => {
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+      // Coalesce bursts of mousemove into one write per frame.
+      if (!frame) frame = requestAnimationFrame(apply);
+    };
+
+    const onResize = () => {
+      if (measureFrame) return;
+      measureFrame = requestAnimationFrame(() => {
+        measureFrame = 0;
+        measure();
+      });
+    };
+
+    let listening = false;
+
+    const start = () => {
+      if (listening) return;
+      listening = true;
+      measure();
+      window.addEventListener('mousemove', onPointerMove, { passive: true });
+      window.addEventListener('resize', onResize, { passive: true });
+    };
+
+    const stop = () => {
+      if (!listening) return;
+      listening = false;
+      window.removeEventListener('mousemove', onPointerMove);
+      window.removeEventListener('resize', onResize);
+
+      if (frame) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      }
+
+      if (measureFrame) {
+        cancelAnimationFrame(measureFrame);
+        measureFrame = 0;
+      }
+
+      // Send everything home, so a planet is never frozen mid-push off-screen.
+      for (const planet of planets) {
+        planet.x = 0;
+        planet.y = 0;
+        planet.el.style.transform = '';
+      }
+    };
+
+    // Nothing is listening while the hero is off-screen, so scrolling the rest
+    // of the page costs exactly nothing. This also covers the `hidden md:block`
+    // case: a display:none container never reports as intersecting.
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) start();
+          else stop();
+        }
+      },
+      { rootMargin: '100px' },
+    );
+
+    observer.observe(field);
+  }
+</script>
