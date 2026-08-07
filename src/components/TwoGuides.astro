@@ -8,6 +8,14 @@ const fibu = {
   name: 'Fibu',
   body: "Fibu is the friend who dares you to hit 'start.' Every streak, every level-up, every badge that's fibu cheering the loudest.",
 };
+
+// Same shape as fibu above: the typing script reads each line's full text from
+// the card, so the copy has to live somewhere it can be emitted as one run of
+// characters rather than as wrapped source.
+const grandma = {
+  name: 'Grandma',
+  body: "Grandma is the one who reminds you there's no such thing as behind only next. Broke your streak? Missed a week? Grandma's not disappointed. She's just glad you're back.",
+};
 ---
 
 <!-- `js-motion` (the flag that hides the untyped tail below) is set in Layout's
@@ -50,12 +58,16 @@ const fibu = {
       ><span class="type-typed"></span><span class="type-caret" aria-hidden="true"></span><span class="type-rest">{fibu.body}</span></p>
     </div>
 
-    <div class="guide-card guide-card-grandma xl:absolute xl:right-0 xl:top-[108px]">
-      <h3 class="text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white light:text-[#1c1512]">Grandma</h3>
-      <p class="font-fira text-[18px] leading-[1.4] text-white light:text-[#3f3f3f]">
-        Grandma is the one who reminds you there's no such thing as behind only next. Broke your
-        streak? Missed a week? Grandma's not disappointed. She's just glad you're back.
-      </p>
+    <!-- Grandma types herself in the same way, on her own trigger — same spans,
+         same classes, same script. The one-line rule above applies here too: a
+         newline between these spans would render as a stray space mid-sentence. -->
+    <div id="grandma-card" class="guide-card guide-card-grandma xl:absolute xl:right-0 xl:top-[108px]">
+      <h3
+        class="type-line text-[20px] font-medium leading-[1.25] tracking-[-0.2px] text-white light:text-[#1c1512]"
+      ><span class="type-typed"></span><span class="type-caret" aria-hidden="true"></span><span class="type-rest">{grandma.name}</span></h3>
+      <p
+        class="type-line font-fira text-[18px] leading-[1.4] text-white light:text-[#3f3f3f]"
+      ><span class="type-typed"></span><span class="type-caret" aria-hidden="true"></span><span class="type-rest">{grandma.body}</span></p>
     </div>
   </div>
 </section>
@@ -121,65 +133,76 @@ const fibu = {
 </style>
 
 <script>
-  // The Fibu card types itself out, line after line, once — then it stays put.
-  const card = document.getElementById('fibu-card');
+  // Each guide card types itself out, line after line, once — then it stays put.
+  // Both cards run this same routine; a card opts in purely by holding
+  // `.type-line` rows, and each gets its own observer so it starts when it is
+  // itself on screen rather than when its neighbour is. They sit at different
+  // heights on desktop, so they are rarely in view at the same moment.
+  const CPS = 13; // characters a second — deliberate, one key at a time
 
-  const lines = Array.from(card?.querySelectorAll<HTMLElement>('.type-line') ?? [])
-    .map((line) => ({
-      typed: line.querySelector<HTMLElement>('.type-typed'),
-      caret: line.querySelector<HTMLElement>('.type-caret'),
-      rest: line.querySelector<HTMLElement>('.type-rest'),
-    }))
-    .filter((line) => line.typed && line.caret && line.rest)
-    .map((line) => ({
-      typed: line.typed!,
-      caret: line.caret!,
-      rest: line.rest!,
-      text: line.rest!.textContent ?? '',
-    }));
+  const readLines = (card: HTMLElement) =>
+    Array.from(card.querySelectorAll<HTMLElement>('.type-line'))
+      .map((line) => ({
+        typed: line.querySelector<HTMLElement>('.type-typed'),
+        caret: line.querySelector<HTMLElement>('.type-caret'),
+        rest: line.querySelector<HTMLElement>('.type-rest'),
+      }))
+      .filter((line) => line.typed && line.caret && line.rest)
+      .map((line) => ({
+        typed: line.typed!,
+        caret: line.caret!,
+        rest: line.rest!,
+        text: line.rest!.textContent ?? '',
+      }));
 
-  if (card && lines.length && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const CPS = 13; // characters a second — deliberate, one key at a time
+  type Line = ReturnType<typeof readLines>[number];
 
-    // Driven off the clock rather than a per-frame step, so the pace holds on a
-    // 120Hz screen and on a tab dropping frames alike.
-    const type = (index: number) => {
-      const line = lines[index];
-      if (!line) return;
+  // Driven off the clock rather than a per-frame step, so the pace holds on a
+  // 120Hz screen and on a tab dropping frames alike.
+  const type = (lines: Line[], index: number) => {
+    const line = lines[index];
+    if (!line) return;
 
-      line.caret.classList.add('is-active');
-      const start = performance.now();
+    line.caret.classList.add('is-active');
+    const start = performance.now();
 
-      const step = (now: number) => {
-        const shown = Math.min(line.text.length, Math.round(((now - start) / 1000) * CPS));
-        line.typed.textContent = line.text.slice(0, shown);
-        line.rest.textContent = line.text.slice(shown);
+    const step = (now: number) => {
+      const shown = Math.min(line.text.length, Math.round(((now - start) / 1000) * CPS));
+      line.typed.textContent = line.text.slice(0, shown);
+      line.rest.textContent = line.text.slice(shown);
 
-        if (shown < line.text.length) {
-          requestAnimationFrame(step);
-          return;
-        }
+      if (shown < line.text.length) {
+        requestAnimationFrame(step);
+        return;
+      }
 
-        line.caret.classList.remove('is-active');
-        type(index + 1);
-      };
-
-      requestAnimationFrame(step);
+      line.caret.classList.remove('is-active');
+      type(lines, index + 1);
     };
 
-    // Starts the first pass once the card is properly on screen, so it isn't
-    // already several cycles deep by the time anyone scrolls to it.
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (!entry.isIntersecting) return;
-          observer.disconnect();
-          type(0);
-        });
-      },
-      { threshold: 0.45 }
-    );
+    requestAnimationFrame(step);
+  };
 
-    observer.observe(card);
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    for (const card of document.querySelectorAll<HTMLElement>('.guide-card')) {
+      const lines = readLines(card);
+      if (!lines.length) continue;
+
+      // Starts the pass once this card is properly on screen, so it isn't
+      // already finished by the time anyone scrolls to it. One observer per
+      // card, disconnected on its own arrival.
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            observer.disconnect();
+            type(lines, 0);
+          });
+        },
+        { threshold: 0.45 }
+      );
+
+      observer.observe(card);
+    }
   }
 </script>
